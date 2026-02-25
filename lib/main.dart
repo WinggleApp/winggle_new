@@ -48,7 +48,7 @@ class _MainNavigationState extends State<MainNavigation> {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: [
+        children: const [
           HomeScreen(),
           Center(child: Text('Feed Screen', style: TextStyle(fontSize: 24))),
           LoopScreen(),
@@ -85,7 +85,7 @@ class _MainNavigationState extends State<MainNavigation> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
-              ? const Color(0xFF10b981).withOpacity(0.05)
+              ? const Color(0xFF10b981).withValues(alpha: 0.05)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -268,10 +268,10 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF10b981).withOpacity(0.12)),
+        border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.12)),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.03),
+              color: Colors.black.withValues(alpha: 0.03),
               blurRadius: 8,
               offset: const Offset(0, 4)),
         ],
@@ -337,10 +337,10 @@ class HomeScreen extends StatelessWidget {
             color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(14),
             border:
-                Border.all(color: const Color(0xFF10b981).withOpacity(0.08)),
+                Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.08)),
             boxShadow: [
               BoxShadow(
-                  color: Colors.black.withOpacity(0.02),
+                  color: Colors.black.withValues(alpha: 0.02),
                   blurRadius: 4,
                   offset: const Offset(0, 3)),
             ],
@@ -411,30 +411,11 @@ class LoopScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stories = [
-      {'name': 'Your Story', 'initial': '+', 'color': Color(0xFF10b981)},
-      {'name': 'Stuet Don', 'initial': 'S', 'color': Color(0xFF10b981)},
-      {'name': 'John', 'initial': 'J', 'color': Color(0xFF10b981)},
-      {'name': 'Emily', 'initial': 'E', 'color': Color(0xFF10b981)},
-      {'name': 'Clubs', 'initial': 'C', 'color': Color(0xFF10b981)},
-    ];
-
-    final drops = List.generate(
-      6,
-      (i) => {
-        'title': 'Knowledge Drop ${i + 1}',
-        'subtitle': i.isEven ? 'Quick tip' : 'Flashcard',
-        'color': const Color(0xFF10b981)
-      },
-    );
-
-    final channels = [
-      {
-        'title': 'Math Club',
-        'subtitle': 'Managed by Prof. Sharma',
-        'members': '12k'
-      },
-      {'title': 'Chemistry Dept.', 'subtitle': 'Dr. Rao', 'members': '4.2k'},
-      {'title': 'Career Cell', 'subtitle': 'Placement Team', 'members': '8.1k'},
+      {'name': 'Your Story', 'initial': '+', 'color': const Color(0xFF10b981)},
+      {'name': 'Stuet Don', 'initial': 'S', 'color': const Color(0xFF10b981)},
+      {'name': 'John', 'initial': 'J', 'color': const Color(0xFF10b981)},
+      {'name': 'Emily', 'initial': 'E', 'color': const Color(0xFF10b981)},
+      {'name': 'Clubs', 'initial': 'C', 'color': const Color(0xFF10b981)},
     ];
 
     return Container(
@@ -497,10 +478,10 @@ class LoopScreen extends StatelessWidget {
                         color: const Color(0xFFF5F5F5),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                            color: const Color(0xFF10b981).withOpacity(0.12)),
+                            color: const Color(0xFF10b981).withValues(alpha: 0.12)),
                         boxShadow: [
                           BoxShadow(
-                              color: Colors.black.withOpacity(0.02),
+                              color: Colors.black.withValues(alpha: 0.02),
                               blurRadius: 6,
                               offset: const Offset(0, 3))
                         ],
@@ -526,8 +507,8 @@ class LoopScreen extends StatelessWidget {
                           Container(
                               width: 10,
                               height: 10,
-                              decoration: BoxDecoration(
-                                  color: const Color(0xFF10b981),
+                              decoration: const BoxDecoration(
+                                  color: Color(0xFF10b981),
                                   shape: BoxShape.circle)),
                         ],
                       ),
@@ -677,7 +658,7 @@ class _ChatScreenState extends State<ChatScreen>
                 color: const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(16),
                 border:
-                    Border.all(color: const Color(0xFF10b981).withOpacity(0.2)),
+                    Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.2)),
               ),
               child: const TextField(
                 decoration: InputDecoration(
@@ -798,7 +779,7 @@ class _ChatScreenState extends State<ChatScreen>
             color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(16),
             border:
-                Border.all(color: const Color(0xFF10b981).withOpacity(0.15)),
+                Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
@@ -1000,7 +981,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           border: Border.all(
               color: isActive
                   ? const Color(0xFF10b981)
-                  : const Color(0xFF10b981).withOpacity(0.2)),
+                  : const Color(0xFF10b981).withValues(alpha: 0.2)),
         ),
         child: Stack(
           children: [
@@ -1026,8 +1007,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
                 decoration: BoxDecoration(
                   color: isActive
-                      ? Colors.white.withOpacity(0.9)
-                      : const Color(0xFFef4444).withOpacity(0.9),
+                      ? Colors.white.withValues(alpha: 0.9)
+                      : const Color(0xFFef4444).withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(9),
                 ),
                 child: Text('$count',
@@ -1044,127 +1025,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  Widget _buildNotificationsList() {
-    final notifications = _selectedTab == 0
-        ? [
-            {
-              'title': 'Resource Library',
-              'message': 'New study materials uploaded',
-              'time': '10 min ago',
-              'icon': Icons.library_books,
-              'color': const Color(0xFF10b981)
-            },
-            {
-              'title': 'Assignment Due',
-              'message': 'Database Systems assignment due tomorrow',
-              'time': '1 hour ago',
-              'icon': Icons.event,
-              'color': const Color(0xFF34d399)
-            },
-          ]
-        : _selectedTab == 1
-            ? [
-                {
-                  'title': 'TechFest Hackathon',
-                  'message': 'Registration opens tomorrow!',
-                  'time': '30 min ago',
-                  'icon': Icons.code,
-                  'color': const Color(0xFFf59e0b)
-                },
-                {
-                  'title': 'CodeChef Contest',
-                  'message': 'Contest starts in 2 hours',
-                  'time': '2 hours ago',
-                  'icon': Icons.emoji_events,
-                  'color': const Color(0xFFfbbf24)
-                },
-              ]
-            : _selectedTab == 2
-                ? [
-                    {
-                      'title': 'Google Internship',
-                      'message': 'Applications open for SWE positions',
-                      'time': '15 min ago',
-                      'icon': Icons.work,
-                      'color': const Color(0xFF6ee7b7)
-                    },
-                    {
-                      'title': 'Microsoft Campus Drive',
-                      'message': 'Pre-placement talk next Monday',
-                      'time': '1 hour ago',
-                      'icon': Icons.people,
-                      'color': const Color(0xFF3b82f6)
-                    },
-                  ]
-                : [
-                    {
-                      'title': 'Campus Corner',
-                      'message': 'Tech Talk at 3pm today',
-                      'time': '5 min ago',
-                      'icon': Icons.location_on,
-                      'color': const Color(0xFF10b981)
-                    },
-                    {
-                      'title': 'Photography Club',
-                      'message': 'Photo walk Sunday morning',
-                      'time': '2 hours ago',
-                      'icon': Icons.groups,
-                      'color': const Color(0xFF047857)
-                    },
-                  ];
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: notifications.length,
-      itemBuilder: (context, index) {
-        final notif = notifications[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5F5F5),
-            borderRadius: BorderRadius.circular(18),
-            border:
-                Border.all(color: const Color(0xFF10b981).withOpacity(0.15)),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                    color: notif['color'] as Color,
-                    borderRadius: BorderRadius.circular(14)),
-                child: Icon(notif['icon'] as IconData,
-                    color: Colors.white, size: 24),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(notif['title'].toString(),
-                        style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Color(0xFF064e3b))),
-                    const SizedBox(height: 4),
-                    Text(notif['message'].toString(),
-                        style: const TextStyle(
-                            fontSize: 13, color: Color(0xFF6b7280))),
-                    const SizedBox(height: 4),
-                    Text(notif['time'].toString(),
-                        style: const TextStyle(
-                            fontSize: 11, color: Color(0xFF6b7280))),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
 class TestScreen extends StatelessWidget {
@@ -1375,7 +1236,7 @@ class TestScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF10b981).withOpacity(0.15)),
+        border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
       ),
       child: Column(
         children: [
@@ -1401,7 +1262,7 @@ class TestScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF10b981).withOpacity(0.15)),
+        border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1568,10 +1429,10 @@ class ProfileScreen extends StatelessWidget {
                 context: context,
                 backgroundColor: Colors.transparent,
                 builder: (context) => Container(
-                  decoration: BoxDecoration(
+                  decoration: const BoxDecoration(
                     color: Colors.white,
                     borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(20)),
+                        BorderRadius.vertical(top: Radius.circular(20)),
                   ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -1635,7 +1496,7 @@ class ProfileScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-              color: const Color(0xFF10b981).withOpacity(0.1),
+              color: const Color(0xFF10b981).withValues(alpha: 0.1),
               blurRadius: 20,
               offset: const Offset(0, 4)),
         ],
@@ -1653,7 +1514,7 @@ class ProfileScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                        color: const Color(0xFF10b981).withOpacity(0.3),
+                        color: const Color(0xFF10b981).withValues(alpha: 0.3),
                         blurRadius: 15,
                         offset: const Offset(0, 5)),
                   ],
@@ -1702,7 +1563,7 @@ class ProfileScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10b981).withOpacity(0.1),
+                  color: const Color(0xFF10b981).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(
@@ -1722,7 +1583,7 @@ class ProfileScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10b981).withOpacity(0.1),
+                  color: const Color(0xFF10b981).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Row(
@@ -1766,12 +1627,12 @@ class ProfileScreen extends StatelessWidget {
           Container(
               width: 1,
               height: 40,
-              color: const Color(0xFF10b981).withOpacity(0.2)),
+              color: const Color(0xFF10b981).withValues(alpha: 0.2)),
           _buildStatItem('253', 'Posts', Icons.article),
           Container(
               width: 1,
               height: 40,
-              color: const Color(0xFF10b981).withOpacity(0.2)),
+              color: const Color(0xFF10b981).withValues(alpha: 0.2)),
           _buildStatItem('104', 'Reviews', Icons.star),
         ],
       ),
@@ -1875,7 +1736,7 @@ class ProfileScreen extends StatelessWidget {
         shape: BoxShape.circle,
         boxShadow: [
           BoxShadow(
-            color: (background ?? Colors.black).withOpacity(0.12),
+            color: (background ?? Colors.black).withValues(alpha: 0.12),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -1974,7 +1835,7 @@ class ProfileScreen extends StatelessWidget {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: const Color(0xFF10b981).withOpacity(0.1),
+            color: const Color(0xFF10b981).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, color: const Color(0xFF10b981), size: 20),
@@ -2038,7 +1899,7 @@ class ProfileScreen extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [color, color.withOpacity(0.7)]),
+            gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
@@ -2069,7 +1930,7 @@ class ProfileScreen extends StatelessWidget {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF10b981).withOpacity(0.1),
+            color: const Color(0xFF10b981).withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
           child:
