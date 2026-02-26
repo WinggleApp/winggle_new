@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
+import 'screens/login_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,29 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white,
         useMaterial3: true,
       ),
-      home: const MainNavigation(),
+      home: StreamBuilder<User?>(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (context, snapshot) {
+          // Show a loading screen while checking auth state
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Scaffold(
+              body: Center(
+                child: CircularProgressIndicator(
+                  color: Color(0xFF10b981),
+                ),
+              ),
+            );
+          }
+
+          // If user is logged in, show main app
+          if (snapshot.hasData) {
+            return const MainNavigation();
+          }
+
+          // If not logged in, show login screen
+          return const LoginScreen();
+        },
+      ),
     );
   }
 }
@@ -270,7 +293,8 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.12)),
+        border:
+            Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.12)),
         boxShadow: [
           BoxShadow(
               color: Colors.black.withValues(alpha: 0.03),
@@ -338,8 +362,8 @@ class HomeScreen extends StatelessWidget {
           decoration: BoxDecoration(
             color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(14),
-            border:
-                Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.08)),
+            border: Border.all(
+                color: const Color(0xFF10b981).withValues(alpha: 0.08)),
             boxShadow: [
               BoxShadow(
                   color: Colors.black.withValues(alpha: 0.02),
@@ -430,9 +454,12 @@ class LoopScreen extends StatelessWidget {
             children: [
               // Header for Loop (similar style to Home header)
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
                 decoration: BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1))),
+                    border: Border(
+                        bottom:
+                            BorderSide(color: Colors.grey[300]!, width: 1))),
                 child: Row(children: [
                   const Text('Loop',
                       style: TextStyle(
@@ -480,7 +507,8 @@ class LoopScreen extends StatelessWidget {
                         color: const Color(0xFFF5F5F5),
                         borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                            color: const Color(0xFF10b981).withValues(alpha: 0.12)),
+                            color: const Color(0xFF10b981)
+                                .withValues(alpha: 0.12)),
                         boxShadow: [
                           BoxShadow(
                               color: Colors.black.withValues(alpha: 0.02),
@@ -659,8 +687,8 @@ class _ChatScreenState extends State<ChatScreen>
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F5F5),
                 borderRadius: BorderRadius.circular(16),
-                border:
-                    Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.2)),
+                border: Border.all(
+                    color: const Color(0xFF10b981).withValues(alpha: 0.2)),
               ),
               child: const TextField(
                 decoration: InputDecoration(
@@ -780,8 +808,8 @@ class _ChatScreenState extends State<ChatScreen>
           decoration: BoxDecoration(
             color: const Color(0xFFF5F5F5),
             borderRadius: BorderRadius.circular(16),
-            border:
-                Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
+            border: Border.all(
+                color: const Color(0xFF10b981).withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
@@ -976,9 +1004,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          color: isActive
-              ? const Color(0xFF10b981)
-              : const Color(0xFFF5F5F5),
+          color: isActive ? const Color(0xFF10b981) : const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
               color: isActive
@@ -1026,8 +1052,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       ),
     );
   }
-
-
 }
 
 class TestScreen extends StatelessWidget {
@@ -1238,7 +1262,8 @@ class TestScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
+        border:
+            Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
       ),
       child: Column(
         children: [
@@ -1264,7 +1289,8 @@ class TestScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
+        border:
+            Border.all(color: const Color(0xFF10b981).withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1901,7 +1927,8 @@ class ProfileScreen extends StatelessWidget {
           width: 48,
           height: 48,
           decoration: BoxDecoration(
-            gradient: LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
+            gradient:
+                LinearGradient(colors: [color, color.withValues(alpha: 0.7)]),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
