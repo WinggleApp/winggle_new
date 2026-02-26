@@ -10,7 +10,6 @@ dependencies:
   flutter:
     sdk: flutter
   cupertino_icons: ^1.0.2
-  font_awesome_flutter: ^10.7.0
   
   # Firebase
   firebase_core: ^2.24.2

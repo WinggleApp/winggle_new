@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "126611795344",
+    "project_id": "winggle-40155",
+    "storage_bucket": "winggle-40155.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126611795344:android:1ee292235fe1ee96b09715",
+        "android_client_info": {
+          "package_name": "com.example.winggle"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBmQnEgTzzAtDGZkCI855lE7TZoGcdtL0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
