@@ -1,11 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'notifications_screen.dart';
 import '../widgets/user_avatar.dart';
+import 'academic_section.dart';
+import 'competitive_section.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   final VoidCallback? onProfileTap;
 
   const HomeScreen({super.key, this.onProfileTap});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  String _userName = 'User';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null && user.displayName != null && user.displayName!.isNotEmpty) {
+      setState(() {
+        _userName = user.displayName!.split(' ')[0]; // Get first name
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +56,7 @@ class HomeScreen extends StatelessWidget {
                             fontWeight: FontWeight.w700,
                             color: Color(0xFF064e3b))),
                     const SizedBox(height: 16),
-                    _buildFeatureGrid(),
+                    _buildFeatureGrid(context),
                   ],
                 ),
               ),
@@ -97,7 +122,7 @@ class HomeScreen extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           UserAvatar(
-            onTap: onProfileTap,
+            onTap: widget.onProfileTap,
           ),
         ],
       ),
@@ -105,11 +130,10 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildWelcomeSection() {
-    final firstName = getUserFirstName();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Hello $firstName, 👋',
+        Text('Hello $_userName, 👋',
             style: const TextStyle(
                 fontSize: 28,
                 fontWeight: FontWeight.w800,
@@ -176,7 +200,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildFeatureGrid() {
+  Widget _buildFeatureGrid(BuildContext context) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -189,8 +213,7 @@ class HomeScreen extends StatelessWidget {
             const Color(0xFF10b981)),
         _buildFeatureCard('Alumni Section', '1.2K MEMBERS', Icons.people,
             const Color(0xFF34d399)),
-        _buildFeatureCard('Resource Library', '500+ ITEMS', Icons.library_books,
-            const Color(0xFF14b8a6)),
+        _buildResourceLibraryCard(context),
         _buildFeatureCard(
             'Events', '12 NEW', Icons.event, const Color(0xFF059669)),
         _buildFeatureCard(
@@ -280,6 +303,167 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+  Widget _buildResourceLibraryCard(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const ResourceLibraryDetail(),
+            ),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF5F5F5),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+                color: const Color(0xFF10b981).withValues(alpha: 0.08)),
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 4,
+                  offset: const Offset(0, 3)),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                        color: const Color(0xFF14b8a6),
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.circular(8)),
+                    child: const Icon(Icons.library_books, color: Colors.white, size: 22),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                    decoration: BoxDecoration(
+                        color: const Color(0xFF14b8a6), borderRadius: BorderRadius.circular(8)),
+                    child: const Text('500+ ITEMS',
+                        style: TextStyle(
+                            fontSize: 8,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              const Text('Resource Library',
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF064e3b))),
+              const Spacer(),
+              const Align(
+                alignment: Alignment.bottomLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Explore',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF14b8a6))),
+                    SizedBox(width: 6),
+                    Icon(Icons.arrow_forward, size: 14, color: Color(0xFF14b8a6)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ResourceLibraryDetail extends StatefulWidget {
+  final VoidCallback? onProfileTap;
+
+  const ResourceLibraryDetail({super.key, this.onProfileTap});
+
+  @override
+  State<ResourceLibraryDetail> createState() => _ResourceLibraryDetailState();
+}
+
+class _ResourceLibraryDetailState extends State<ResourceLibraryDetail>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF064e3b)),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text(
+          'Resource Library',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF064e3b),
+          ),
+        ),
+        centerTitle: false,
+      ),
+      body: Column(
+        children: [
+          Material(
+            color: Colors.white,
+            child: TabBar(
+              controller: _tabController,
+              labelColor: const Color(0xFF10b981),
+              unselectedLabelColor: const Color(0xFF9ca3af),
+              indicatorColor: const Color(0xFF10b981),
+              indicatorWeight: 3,
+              tabs: const [
+                Tab(text: 'Academic'),
+                Tab(text: 'Competitive'),
+              ],
+            ),
+          ),
+          Expanded(
+            child: TabBarView(
+              controller: _tabController,
+              children: [
+                AcademicSection(onProfileTap: widget.onProfileTap),
+                CompetitiveSection(onProfileTap: widget.onProfileTap),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
