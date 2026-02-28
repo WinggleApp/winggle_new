@@ -4,6 +4,8 @@ import 'notifications_screen.dart';
 import '../widgets/user_avatar.dart';
 import 'academic_section.dart';
 import 'competitive_section.dart';
+import 'events_screen.dart';  // ADD THIS
+import 'campus_corner.dart';  // ADD THIS
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onProfileTap;
@@ -209,32 +211,88 @@ class _HomeScreenState extends State<HomeScreen> {
       mainAxisSpacing: 12,
       childAspectRatio: 1.8,
       children: [
-        _buildFeatureCard('Campus Corner', '24 ACTIVE', Icons.location_on,
-            const Color(0xFF10b981)),
-        _buildFeatureCard('Alumni Section', '1.2K MEMBERS', Icons.people,
-            const Color(0xFF34d399)),
+        // Campus Corner - WITH NAVIGATION
+        _buildFeatureCard(
+          context,
+          'Campus Corner',
+          '24 ACTIVE',
+          Icons.location_on,
+          const Color(0xFF10b981),
+          () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CampusCornnerScreen())),
+        ),
+        // Alumni Section - NO NAVIGATION YET
+        _buildFeatureCard(
+          context,
+          'Alumni Section',
+          '1.2K MEMBERS',
+          Icons.people,
+          const Color(0xFF34d399),
+          null,
+        ),
+        // Resource Library - ALREADY HAS NAVIGATION
         _buildResourceLibraryCard(context),
+        // Events - WITH NAVIGATION
         _buildFeatureCard(
-            'Events', '12 NEW', Icons.event, const Color(0xFF059669)),
+          context,
+          'Events',
+          '12 NEW',
+          Icons.event,
+          const Color(0xFF059669),
+          () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EventsScreen())),
+        ),
+        // College Clubs - NO NAVIGATION YET
         _buildFeatureCard(
-            'College Clubs', '18 CLUBS', Icons.groups, const Color(0xFF047857)),
+          context,
+          'College Clubs',
+          '18 CLUBS',
+          Icons.groups,
+          const Color(0xFF047857),
+          null,
+        ),
+        // Job Updates - NO NAVIGATION YET
         _buildFeatureCard(
-            'Job Updates', '45 NEW', Icons.work, const Color(0xFF6ee7b7)),
+          context,
+          'Job Updates',
+          '45 NEW',
+          Icons.work,
+          const Color(0xFF6ee7b7),
+          null,
+        ),
+        // Nexus Community - NO NAVIGATION YET
         _buildFeatureCard(
-            'Nexus Community', 'ACTIVE', Icons.forum, const Color(0xFF0d9488)),
+          context,
+          'Nexus Community',
+          'ACTIVE',
+          Icons.forum,
+          const Color(0xFF0d9488),
+          null,
+        ),
+        // She Shield - NO NAVIGATION YET
         _buildFeatureCard(
-            'She Shield', '24/7', Icons.shield, const Color(0xFFec4899)),
+          context,
+          'She Shield',
+          '24/7',
+          Icons.shield,
+          const Color(0xFFec4899),
+          null,
+        ),
       ],
     );
   }
 
   Widget _buildFeatureCard(
-      String title, String badge, IconData icon, Color color) {
+    BuildContext context,
+    String title,
+    String badge,
+    IconData icon,
+    Color color,
+    VoidCallback? onTap,  // ADDED THIS PARAMETER
+  ) {
     return Material(
       color: Colors.transparent,
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
-        onTap: () {},
+        onTap: onTap,  // CHANGED FROM onTap: () {} to onTap: onTap
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           decoration: BoxDecoration(
@@ -306,6 +364,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
   Widget _buildResourceLibraryCard(BuildContext context) {
     return Material(
       color: Colors.transparent,
