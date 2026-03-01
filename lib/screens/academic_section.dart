@@ -1,324 +1,261 @@
 import 'package:flutter/material.dart';
+import 'btech_departments_screen.dart';
 
-class Degree {
-  final String id;
-  final String title;
-  final String subtitle;
-  final String icon;
-  final Color color;
-  final int departments;
-  final int resources;
-
-  Degree({
-    required this.id,
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.color,
-    required this.departments,
-    required this.resources,
-  });
-}
-
-class AcademicSection extends StatefulWidget {
+class AcademicSection extends StatelessWidget {
   final VoidCallback? onProfileTap;
 
   const AcademicSection({super.key, this.onProfileTap});
 
   @override
-  State<AcademicSection> createState() => _AcademicSectionState();
-}
-
-class _AcademicSectionState extends State<AcademicSection> with SingleTickerProviderStateMixin {
-  String _searchQuery = '';
-  late AnimationController _animationController;
-
-  final List<Degree> _degrees = [
-    Degree(
-      id: '1',
-      title: 'B.Tech',
-      subtitle: 'Bachelor of Technology',
-      icon: '🔧',
-      color: const Color(0xFF3b82f6),
-      departments: 8,
-      resources: 959,
-    ),
-    Degree(
-      id: '2',
-      title: 'Diploma',
-      subtitle: 'Diploma in Engineering',
-      icon: '📜',
-      color: const Color(0xFFf97316),
-      departments: 6,
-      resources: 405,
-    ),
-    Degree(
-      id: '3',
-      title: 'BA',
-      subtitle: 'Bachelor of Arts',
-      icon: '📚',
-      color: const Color(0xFF8b5cf6),
-      departments: 8,
-      resources: 644,
-    ),
-    Degree(
-      id: '4',
-      title: 'B.Com',
-      subtitle: 'Bachelor of Commerce',
-      icon: '💼',
-      color: const Color(0xFF10b981),
-      departments: 7,
-      resources: 586,
-    ),
-    Degree(
-      id: '5',
-      title: 'BCA',
-      subtitle: 'Bachelor of Computer Applications',
-      icon: '💻',
-      color: const Color(0xFF06b6d4),
-      departments: 8,
-      resources: 817,
-    ),
-    Degree(
-      id: '6',
-      title: 'BBA',
-      subtitle: 'Bachelor of Business Administration',
-      icon: '📈',
-      color: const Color(0xFFec4899),
-      departments: 6,
-      resources: 423,
-    ),
-    Degree(
-      id: '7',
-      title: 'B.Sc',
-      subtitle: 'Bachelor of Science',
-      icon: '🔬',
-      color: const Color(0xFF6366f1),
-      departments: 7,
-      resources: 604,
-    ),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
-  List<Degree> get _filteredDegrees {
-    if (_searchQuery.isEmpty) {
-      return _degrees;
-    }
-    return _degrees
-        .where((degree) =>
-            degree.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-            degree.subtitle.toLowerCase().contains(_searchQuery.toLowerCase()))
-        .toList();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFF0FDF4),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[200]!, width: 1),
-                ),
-                child: Row(
-                  children: [
-                    const Icon(Icons.search, color: Color(0xFF9ca3af), size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            _searchQuery = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Search degrees...',
-                          hintStyle: const TextStyle(
-                            color: Color(0xFF9ca3af),
-                            fontSize: 14,
-                            decoration: TextDecoration.none,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 12),
-                        ),
-                        style: const TextStyle(
-                          decoration: TextDecoration.none,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Select Your Degree Section
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Text(
-                'Select Your Degree',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: const Color(0xFF064e3b),
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Degree Cards
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                children: _filteredDegrees
-                    .map((degree) => Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _buildDegreeCard(degree),
-                        ))
-                    .toList(),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDegreeCard(Degree degree) {
-    return GestureDetector(
-      onTap: () {
-        _animationController.forward().then((_) {
-          _animationController.reverse();
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('${degree.title} selected!'),
-            duration: const Duration(milliseconds: 800),
-            behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-        );
-      },
-      child: ScaleTransition(
-        scale: Tween<double>(begin: 1.0, end: 0.98).animate(
-          CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-        ),
-        child: Container(
+    return Column(
+      children: [
+        // Search bar
+        Padding(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              color: Colors.grey[200]!,
-              width: 1,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.grey[300]!),
             ),
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+            child: TextField(
+              decoration: InputDecoration(
+                hintText: 'Search degrees...',
+                hintStyle: TextStyle(color: Colors.grey[400]),
+                border: InputBorder.none,
+                icon: Icon(Icons.search, color: Colors.grey[400]),
               ),
+            ),
+          ),
+        ),
+        
+        // Title
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              'Select Your Degree',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF064e3b),
+              ),
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Degree cards list
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            children: [
+              // B.Tech - Clickable
+              _buildDegreeCard(
+                context,
+                'B.Tech',
+                'Bachelor of Technology',
+                '5 Departments',
+                '959+ resources',
+                Icons.engineering,
+                const Color(0xFF2196F3),
+                () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const BTechDepartmentsScreen(),
+                    ),
+                  );
+                },
+              ),
+              
+              // Diploma
+              _buildDegreeCard(
+                context,
+                'Diploma',
+                'Diploma in Engineering',
+                '6 Departments',
+                '405+ resources',
+                Icons.description,
+                const Color(0xFFFF9800),
+                null,
+              ),
+              
+              // BA
+              _buildDegreeCard(
+                context,
+                'BA',
+                'Bachelor of Arts',
+                '8 Departments',
+                '644+ resources',
+                Icons.menu_book,
+                const Color(0xFF9C27B0),
+                null,
+              ),
+              
+              // B.Com
+              _buildDegreeCard(
+                context,
+                'B.Com',
+                'Bachelor of Commerce',
+                '7 Departments',
+                '586+ resources',
+                Icons.account_balance_wallet,  
+                  const Color(0xFF4CAF50),      
+                null,
+                ),
+              
+              // BCA
+              _buildDegreeCard(
+                context,
+                'BCA',
+                'Bachelor of Computer Applications',
+                '8 Departments',
+                '817+ resources',
+                Icons.computer,
+                const Color(0xFF00BCD4),
+                null,
+              ),
+              
+              // BBA
+              _buildDegreeCard(
+                context,
+                'BBA',
+                'Bachelor of Business Administration',
+                '6 Departments',
+                '423+ resources',
+                Icons.business_center,
+                const Color(0xFFE91E63),
+                null,
+              ),
+              
+              // B.Sc
+              _buildDegreeCard(
+                context,
+                'B.Sc',
+                'Bachelor of Science',
+                '7 Departments',
+                '604+ resources',
+                Icons.science,
+                const Color(0xFF673AB7),
+                null,
+              ),
+              
+              const SizedBox(height: 20),
             ],
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: degree.color,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Center(
-                  child: Text(
-                    degree.icon,
-                    style: const TextStyle(fontSize: 28),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDegreeCard(
+    BuildContext context,
+    String title,
+    String subtitle,
+    String departments,
+    String resources,
+    IconData icon,
+    Color color,
+    VoidCallback? onTap,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                // Icon container
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color: color,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                    size: 30,
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      degree.title,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        color: Color(0xFF1f2937),
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      degree.subtitle,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF6b7280),
-                        decoration: TextDecoration.none,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Text(
-                          '${degree.departments} Departments',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF10b981),
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.none,
-                          ),
+                
+                const SizedBox(width: 16),
+                
+                // Text content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF064e3b),
                         ),
-                        const SizedBox(width: 12),
-                        Text(
-                          '${degree.resources}+ resources',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Color(0xFF6b7280),
-                            decoration: TextDecoration.none,
-                          ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Colors.grey[600],
                         ),
-                      ],
-                    ),
-                  ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Text(
+                            departments,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF10b981),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Text(
+                            resources,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Icon(
-                Icons.arrow_forward_ios,
-                size: 16,
-                color: degree.color,
-              ),
-            ],
+                
+                // Arrow icon
+                Icon(
+                  Icons.chevron_right,
+                  color: Colors.grey[400],
+                  size: 24,
+                ),
+              ],
+            ),
           ),
         ),
       ),

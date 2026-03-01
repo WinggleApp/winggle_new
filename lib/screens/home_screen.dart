@@ -220,15 +220,7 @@ class _HomeScreenState extends State<HomeScreen> {
           const Color(0xFF10b981),
           () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CampusCornnerScreen())),
         ),
-        // Alumni Section - NO NAVIGATION YET
-        _buildFeatureCard(
-          context,
-          'Alumni Section',
-          '1.2K MEMBERS',
-          Icons.people,
-          const Color(0xFF34d399),
-          null,
-        ),
+        
         // Resource Library - ALREADY HAS NAVIGATION
         _buildResourceLibraryCard(context),
         // Events - WITH NAVIGATION
@@ -240,15 +232,8 @@ class _HomeScreenState extends State<HomeScreen> {
           const Color(0xFF059669),
           () => Navigator.push(context, MaterialPageRoute(builder: (context) => const EventsScreen())),
         ),
-        // College Clubs - NO NAVIGATION YET
-        _buildFeatureCard(
-          context,
-          'College Clubs',
-          '18 CLUBS',
-          Icons.groups,
-          const Color(0xFF047857),
-          null,
-        ),
+        
+        
         // Job Updates - NO NAVIGATION YET
         _buildFeatureCard(
           context,

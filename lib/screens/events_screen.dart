@@ -185,7 +185,7 @@ class _EventsScreenState extends State<EventsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Events ✨',
+                'Events ',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w900,
@@ -193,14 +193,7 @@ class _EventsScreenState extends State<EventsScreen> {
                   decoration: TextDecoration.none,
                 ),
               ),
-              const Text(
-                'Cross-College Event Platform',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFFFB923C),
-                  decoration: TextDecoration.none,
-                ),
-              ),
+              
             ],
           ),
           const Spacer(),
