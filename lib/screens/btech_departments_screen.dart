@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'department_semesters_screen.dart';
 
 class BTechDepartmentsScreen extends StatelessWidget {
   const BTechDepartmentsScreen({super.key});
@@ -36,6 +37,7 @@ class BTechDepartmentsScreen extends StatelessWidget {
             _buildHeaderCard(),
             const SizedBox(height: 20),
             _buildDepartmentCard(
+              context,
               'Computer Science',
               'CSE',
               Icons.computer,
@@ -45,6 +47,7 @@ class BTechDepartmentsScreen extends StatelessWidget {
               'AI, ML, DSA, Web Dev, DBMS, OS, Networks, Cloud Computing, Cyber Security',
             ),
             _buildDepartmentCard(
+              context,
               'Electrical Engineering',
               'EE',
               Icons.electrical_services,
@@ -54,6 +57,7 @@ class BTechDepartmentsScreen extends StatelessWidget {
               'Power Systems, Electrical Machines, Control Systems, Power Electronics, Signals',
             ),
             _buildDepartmentCard(
+              context,
               'Electronics & Telecom',
               'ECE',
               Icons.settings_input_antenna,
@@ -63,6 +67,7 @@ class BTechDepartmentsScreen extends StatelessWidget {
               'Digital Electronics, Communication Systems, Microprocessors, VLSI, Signal Processing',
             ),
             _buildDepartmentCard(
+              context,
               'Mechanical Engineering',
               'ME',
               Icons.precision_manufacturing,
@@ -72,6 +77,7 @@ class BTechDepartmentsScreen extends StatelessWidget {
               'Thermodynamics, Fluid Mechanics, Manufacturing, Machine Design, CAD/CAM',
             ),
             _buildDepartmentCard(
+              context,
               'Civil Engineering',
               'CE',
               Icons.apartment,
@@ -181,6 +187,7 @@ class BTechDepartmentsScreen extends StatelessWidget {
   }
 
   Widget _buildDepartmentCard(
+    BuildContext context,
     String name,
     String shortName,
     IconData icon,
@@ -208,7 +215,17 @@ class BTechDepartmentsScreen extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: () {
-            // TODO: Navigate to department details
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => DepartmentSemestersScreen(
+                  departmentName: name,
+                  departmentShort: shortName,
+                  departmentIcon: icon,
+                  departmentColor: color,
+                ),
+              ),
+            );
           },
           child: Padding(
             padding: const EdgeInsets.all(16),
