@@ -7,12 +7,17 @@ import 'screens/home_screen.dart';
 import 'screens/loop_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
+import 'utils/auto_database_initializer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  // Initialize database automatically
+  await AutoDatabaseInitializer.initializeOnAppStart();
+  
   runApp(MyApp());
 }
 
