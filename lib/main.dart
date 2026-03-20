@@ -7,7 +7,6 @@ import 'screens/home_screen.dart';
 import 'screens/loop_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
-import 'utils/auto_database_initializer.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,10 +14,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
-  // Initialize database automatically
-  await AutoDatabaseInitializer.initializeOnAppStart();
-  
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -30,14 +26,70 @@ class MyApp extends StatelessWidget {
       title: 'Winggle',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primaryColor: const Color(0xFF10b981),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF10b981),
-          primary: const Color(0xFF10b981),
-          secondary: const Color(0xFF059669),
-        ),
-        scaffoldBackgroundColor: Colors.white,
         useMaterial3: true,
+        brightness: Brightness.dark,
+        primaryColor: const Color(0xFF1DB954),
+        scaffoldBackgroundColor: const Color(0xFF0A0A0A),
+        colorScheme: const ColorScheme.dark(
+          primary: Color(0xFF1DB954),
+          secondary: Color(0xFF1DB987),
+          surface: Color(0xFF141414),
+          onSurface: Color(0xFFEFEFEF),
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF0D0D0D),
+          elevation: 0,
+          centerTitle: false,
+        ),
+        cardTheme: CardThemeData(
+          color: const Color(0xFF141414),
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: const BorderSide(color: Color(0xFF1E1E1E)),
+          ),
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: const Color(0xFF161616),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF1DB954), width: 2),
+          ),
+          labelStyle: const TextStyle(color: Color(0xFF888888)),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFF1DB954),
+            foregroundColor: const Color(0xFF0D0D0D),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            elevation: 0,
+          ),
+        ),
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: const Color(0xFF1DB954),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: const Color(0xFF1DB954),
+            side: const BorderSide(color: Color(0xFF2A2A2A)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
       ),
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
@@ -47,14 +99,23 @@ class MyApp extends StatelessWidget {
             return const Scaffold(
               body: Center(
                 child: CircularProgressIndicator(
-                  color: Color(0xFF10b981),
+                  color: Color(0xFF1DB954),
                 ),
               ),
             );
           }
 
-          // If user is logged in, show main app
+          // If user is logged in
           if (snapshot.hasData) {
+            final user = snapshot.data!;
+            
+            // Check if email is verified
+            if (!user.emailVerified) {
+              // Email not verified, show login screen
+              return const LoginScreen();
+            }
+            
+            // Email is verified, show main app
             return const MainNavigation();
           }
 
@@ -82,7 +143,7 @@ class _MainNavigationState extends State<MainNavigation> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          HomeScreen(onProfileTap: () => setState(() => _currentIndex = 4)),
+          const HomeScreen(),
           const Center(
               child: Text('Feed Screen', style: TextStyle(fontSize: 24))),
           LoopScreen(onProfileTap: () => setState(() => _currentIndex = 4)),

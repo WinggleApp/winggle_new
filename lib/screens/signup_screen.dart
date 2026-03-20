@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../services/auth_service.dart';
+import 'email_verification_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -22,6 +23,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   bool _agreedToTerms = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Set default phone prefix
+    _phoneController.text = '+91';
+  }
 
   @override
   void dispose() {
@@ -60,37 +68,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
     if (!mounted) return;
 
     if (result['success']) {
-      // Show success dialog
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-          title: const Row(
-            children: [
-              Icon(Icons.check_circle, color: Color(0xFF10b981), size: 32),
-              SizedBox(width: 12),
-              Text('Success!'),
-            ],
-          ),
-          content: const Text(
-            'Account created successfully!\n\nPlease check your email and verify your account before signing in.',
-          ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context); // Close dialog
-                Navigator.pop(context); // Go back to login
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF10b981),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              ),
-              child: const Text('Go to Login'),
+      // Navigate to email verification screen
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EmailVerificationScreen(
+              email: _emailController.text.trim(),
+              userId: result['user']?.uid,
             ),
-          ],
-        ),
-      );
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -106,18 +95,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFFf0fdf4),
-              Color(0xFFecfdf5),
-              Color(0xFFd1fae5),
-              Color(0xFFa7f3d0),
-            ],
-          ),
-        ),
+        color: const Color(0xFF0A0A0A),
         child: SafeArea(
           child: Column(
             children: [
@@ -128,9 +106,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back),
+                      icon: const Icon(Icons.arrow_back, color: Color(0xFFF0F0F0)),
                       style: IconButton.styleFrom(
-                        backgroundColor: Colors.white.withOpacity(0.9),
+                        backgroundColor: const Color(0xFF161616),
                       ),
                     ),
                   ],
@@ -150,12 +128,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           height: 80,
                           decoration: BoxDecoration(
                             gradient: const LinearGradient(
-                              colors: [Color(0xFF10b981), Color(0xFF34d399)],
+                              colors: [Color(0xFF1DB954), Color(0xFF1DB987)],
                             ),
                             borderRadius: BorderRadius.circular(20),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF10b981).withOpacity(0.4),
+                                color: const Color(0xFF1DB954).withValues(alpha: 0.3),
                                 blurRadius: 20,
                                 offset: const Offset(0, 10),
                               ),
@@ -175,7 +153,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFF064e3b),
+                            color: Color(0xFFF0F0F0),
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -183,7 +161,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           'Join Winggle today',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Color(0xFF6b7280),
+                            color: Color(0xFF888888),
                           ),
                         ),
                         const SizedBox(height: 32),
@@ -257,7 +235,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: const Color(0xFF10b981),
+                              color: const Color(0xFF1DB954),
                             ),
                             onPressed: () {
                               setState(() => _obscurePassword = !_obscurePassword);
@@ -297,7 +275,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           suffixIcon: IconButton(
                             icon: Icon(
                               _obscureConfirmPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: const Color(0xFF10b981),
+                              color: const Color(0xFF1DB954),
                             ),
                             onPressed: () {
                               setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
@@ -323,7 +301,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               onChanged: (value) {
                                 setState(() => _agreedToTerms = value ?? false);
                               },
-                              activeColor: const Color(0xFF10b981),
+                              activeColor: const Color(0xFF1DB954),
                             ),
                             Expanded(
                               child: GestureDetector(
@@ -332,13 +310,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 },
                                 child: RichText(
                                   text: const TextSpan(
-                                    style: TextStyle(color: Color(0xFF6b7280), fontSize: 14),
+                                    style: TextStyle(color: Color(0xFF888888), fontSize: 14),
                                     children: [
                                       TextSpan(text: 'I agree to the '),
                                       TextSpan(
                                         text: 'Terms and Conditions',
                                         style: TextStyle(
-                                          color: Color(0xFF10b981),
+                                          color: Color(0xFF1DB954),
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
@@ -358,10 +336,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           child: ElevatedButton(
                             onPressed: _isLoading ? null : _handleSignUp,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF10b981),
+                              backgroundColor: const Color(0xFF1DB954),
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                borderRadius: BorderRadius.circular(14),
                               ),
                               elevation: 0,
                             ),
@@ -391,14 +369,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           children: [
                             const Text(
                               'Already have an account? ',
-                              style: TextStyle(color: Color(0xFF6b7280)),
+                              style: TextStyle(color: Color(0xFF888888)),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context),
                               child: const Text(
                                 'Sign In',
                                 style: TextStyle(
-                                  color: Color(0xFF10b981),
+                                  color: Color(0xFF1DB954),
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -428,36 +406,33 @@ class _SignUpScreenState extends State<SignUpScreen> {
     Widget? suffixIcon,
     List<TextInputFormatter>? inputFormatters,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.9),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: TextFormField(
-        controller: controller,
-        keyboardType: keyboardType,
-        obscureText: obscureText,
-        inputFormatters: inputFormatters,
-        decoration: InputDecoration(
-          labelText: label,
-          hintText: hint,
-          prefixIcon: Icon(icon, color: const Color(0xFF10b981)),
-          suffixIcon: suffixIcon,
-          border: const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(16)),
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          fillColor: Colors.transparent,
+    return TextField(
+      controller: controller,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      inputFormatters: inputFormatters,
+      style: const TextStyle(color: Color(0xFFF0F0F0)),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Color(0xFF888888)),
+        hintText: hint,
+        hintStyle: const TextStyle(color: Color(0xFF555555)),
+        prefixIcon: Icon(icon, color: const Color(0xFF1DB954)),
+        suffixIcon: suffixIcon,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
         ),
-        validator: validator,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Color(0xFF1DB954), width: 2),
+        ),
+        filled: true,
+        fillColor: const Color(0xFF161616),
       ),
     );
   }
