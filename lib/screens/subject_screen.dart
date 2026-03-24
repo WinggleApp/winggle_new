@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import '../services/notes_service.dart';
 
-class SubjectScreen extends StatelessWidget {
+class SubjectScreen extends StatefulWidget {
   final String semesterName;
   final String departmentAbbr;
   final int semesterNum;
@@ -16,19 +19,162 @@ class SubjectScreen extends StatelessWidget {
     required this.color,
   }) : super(key: key);
 
+  @override
+  State<SubjectScreen> createState() => _SubjectScreenState();
+}
+
+class _SubjectScreenState extends State<SubjectScreen> {
+  final NotesService _notesService = NotesService();
+  bool _isUploading = false;
+  List<Map<String, dynamic>> _uploadedNotes = [];
+  String? _selectedSubjectCode;
+  String? _selectedSubjectName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotes();
+  }
+
+  void _loadNotes() {
+    // Notes will be loaded when user interacts with a subject
+  }
+
+  Future<void> _pickAndUploadFile(
+      String subjectCode, String subjectName) async {
+    try {
+      // Pick file
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+        withData: true,
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final platformFile = result.files.first;
+        final File file = File(platformFile.path!);
+
+        // Show loading dialog
+        if (!mounted) return;
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: const Color(0xFF141414),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF1DB954)),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Uploading: ${platformFile.name}',
+                    style: const TextStyle(
+                      color: Color(0xFFF0F0F0),
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+
+        setState(() => _isUploading = true);
+
+        // Upload file
+        final uploadResult = await _notesService.uploadNote(
+          file: file,
+          departmentAbbr: widget.departmentAbbr,
+          semesterNum: widget.semesterNum,
+          subjectCode: subjectCode,
+          subjectName: subjectName,
+          fileName: platformFile.name,
+        );
+
+        // Close loading dialog
+        if (mounted) Navigator.pop(context);
+
+        if (uploadResult != null && uploadResult['success']) {
+          // Refresh notes list
+          await _loadNotesForSubject(subjectCode);
+
+          if (mounted) {
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: const Color(0xFF1DB954),
+                content: Text(
+                  '✓ ${platformFile.name} uploaded successfully!',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        } else {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                backgroundColor: const Color(0xFFFF4757),
+                content: Text(
+                  uploadResult?['message'] ?? 'Failed to upload file',
+                  style: const TextStyle(color: Colors.white),
+                ),
+                duration: const Duration(seconds: 2),
+              ),
+            );
+          }
+        }
+
+        setState(() => _isUploading = false);
+      }
+    } catch (e) {
+      print('Error: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: const Color(0xFFFF4757),
+            content: Text(
+              'Error: $e',
+              style: const TextStyle(color: Colors.white),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _loadNotesForSubject(String subjectCode) async {
+    final notes = await _notesService.getNotesForSubject(
+      departmentAbbr: widget.departmentAbbr,
+      semesterNum: widget.semesterNum,
+      subjectCode: subjectCode,
+    );
+    setState(() {
+      _uploadedNotes = notes;
+      _selectedSubjectCode = subjectCode;
+    });
+  }
+
   // Get subjects based on department and semester
   List<Map<String, dynamic>> getSubjects() {
-    switch (departmentAbbr.toUpperCase()) {
+    switch (widget.departmentAbbr.toUpperCase()) {
       case 'CSE':
-        return getCSESubjects(semesterNum);
+        return getCSESubjects(widget.semesterNum);
       case 'EE':
-        return getEESubjects(semesterNum);
+        return getEESubjects(widget.semesterNum);
       case 'ECE':
-        return getECESubjects(semesterNum);
+        return getECESubjects(widget.semesterNum);
       case 'ME':
-        return getMESubjects(semesterNum);
+        return getMESubjects(widget.semesterNum);
       case 'CE':
-        return getCESubjects(semesterNum);
+        return getCESubjects(widget.semesterNum);
       default:
         return [];
     }
@@ -334,6 +480,7 @@ class SubjectScreen extends StatelessWidget {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
     final subjects = getSubjects();
     final totalCredits = calculateTotalCredits(subjects);
@@ -356,7 +503,7 @@ class SubjectScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              semesterName,
+              widget.semesterName,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
@@ -365,7 +512,7 @@ class SubjectScreen extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             Text(
-              '$departmentAbbr - Year $yearNum',
+              '${widget.departmentAbbr} - Year ${widget.yearNum}',
               style: const TextStyle(
                 fontSize: 12,
                 color: Color(0xFF888888),
@@ -393,7 +540,7 @@ class SubjectScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     _buildStatsItem('📚', '${subjects.length}', 'Subjects'),
-                    _buildStatsItem('📝', '0', 'Notes'),
+                    _buildStatsItem('📝', '${_uploadedNotes.length}', 'Uploaded'),
                     _buildStatsItem('⭐', '$totalCredits+', 'Credits'),
                   ],
                 ),
@@ -649,12 +796,10 @@ class SubjectScreen extends StatelessWidget {
               const SizedBox(width: 10),
               Expanded(
                 child: GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Upload PDF for ${subject['code']}'),
-                        duration: const Duration(seconds: 1),
-                      ),
+                  onTap: () async {
+                    await _pickAndUploadFile(
+                      subject['code'],
+                      subject['name'],
                     );
                   },
                   child: Container(
@@ -663,18 +808,18 @@ class SubjectScreen extends StatelessWidget {
                       color: const Color(0xFF1DB954),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.upload_file,
+                          _isUploading ? Icons.hourglass_empty : Icons.upload_file,
                           size: 16,
                           color: Colors.white,
                         ),
-                        SizedBox(width: 6),
+                        const SizedBox(width: 6),
                         Text(
-                          'Upload PDF',
-                          style: TextStyle(
+                          _isUploading ? 'Uploading...' : 'Upload PDF',
+                          style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
