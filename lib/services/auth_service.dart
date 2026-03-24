@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:async';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -41,13 +42,22 @@ class AuthService {
       UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
-      );
+      ).timeout(const Duration(seconds: 15), onTimeout: () {
+        throw TimeoutException('Firebase Auth timeout');
+      });
 
-      // Update display name
-      await userCredential.user?.updateDisplayName(name);
+      // Update display name (non-blocking)
+      userCredential.user?.updateDisplayName(name).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('Update display name timeout');
+        },
+      ).catchError((e) {
+        print('Error updating display name: $e');
+      });
 
-      // Store user data in Firestore
-      await _firestore.collection('users').doc(userCredential.user?.uid).set({
+      // Store user data in Firestore (non-blocking)
+      _firestore.collection('users').doc(userCredential.user?.uid).set({
         'uid': userCredential.user?.uid,
         'name': name,
         'email': email,
@@ -55,10 +65,19 @@ class AuthService {
         'createdAt': FieldValue.serverTimestamp(),
         'profileComplete': false,
         'verified': false,
+      }).timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          print('Firestore set timeout');
+        },
+      ).catchError((e) {
+        print('Error storing user data: $e');
       });
 
-      // Send email verification
-      await userCredential.user?.sendEmailVerification();
+      // Send email verification in background (don't wait for it)
+      userCredential.user?.sendEmailVerification().onError((error, stackTrace) {
+        print('Error sending verification email: $error');
+      });
 
       return {
         'success': true,
@@ -96,7 +115,19 @@ class AuthService {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
-      );
+      ).timeout(const Duration(seconds: 15), onTimeout: () {
+        throw TimeoutException('Sign in timeout');
+      });
+
+      // Reload user to get latest email verification status (non-blocking)
+      userCredential.user?.reload().timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {
+          print('User reload timeout');
+        },
+      ).catchError((e) {
+        print('Error reloading user: $e');
+      });
 
       // Check if email is verified
       if (!userCredential.user!.emailVerified) {
@@ -178,16 +209,32 @@ class AuthService {
         return {'success': false, 'message': 'No user logged in', 'verified': false};
       }
       
-      // Reload user to get latest verification status
-      await user.reload();
+      // Reload user to get latest verification status (with timeout)
+      await user.reload().timeout(
+        const Duration(seconds: 8),
+        onTimeout: () {
+          print('User reload timeout');
+        },
+      ).catchError((e) {
+        print('Error reloading user: $e');
+      });
+
       user = _auth.currentUser;
       
-      if (user!.emailVerified) {
-        // Update Firestore to mark as verified
-        await _firestore.collection('users').doc(user.uid).update({
+      if (user?.emailVerified == true) {
+        // Update Firestore in background (don't wait)
+        _firestore.collection('users').doc(user!.uid).update({
           'verified': true,
           'emailVerifiedAt': FieldValue.serverTimestamp(),
+        }).timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            print('Firestore update timeout');
+          },
+        ).catchError((e) {
+          print('Error updating Firestore: $e');
         });
+
         return {'success': true, 'message': 'Email verified!', 'verified': true};
       }
       

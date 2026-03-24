@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../main.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
 import 'email_verification_screen.dart';
@@ -42,7 +43,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
 
     if (result['success']) {
-      // Navigation will be handled by the StreamBuilder in main.dart
+      // Pop login screen - StreamBuilder in main.dart will handle navigation to MainNavigation
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const MainNavigation()),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

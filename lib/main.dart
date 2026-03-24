@@ -4,9 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/feed_screen.dart';
 import 'screens/loop_screen.dart';
 import 'screens/chat_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/events_screen.dart';
+import 'screens/notifications_screen.dart';
+import 'screens/resource_library_screen.dart';
+import 'screens/semester_screen.dart';
+import 'screens/subject_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -143,16 +149,22 @@ class _MainNavigationState extends State<MainNavigation> {
       body: IndexedStack(
         index: _currentIndex,
         children: [
-          const HomeScreen(),
-          const Center(
-              child: Text('Feed Screen', style: TextStyle(fontSize: 24))),
+          HomeScreen(
+            onEventsPressed: () => setState(() => _currentIndex = 5),
+            onNotificationPressed: () => setState(() => _currentIndex = 6),
+            onLibraryPressed: () => setState(() => _currentIndex = 7),
+          ),
+          const FeedScreen(),
           LoopScreen(onProfileTap: () => setState(() => _currentIndex = 4)),
           const ChatScreen(),
           const ProfileScreen(),
+          const EventsScreen(),
+          const NotificationsScreen(),
+          const ResourceLibraryScreen(),
         ],
       ),
       bottomNavigationBar: Container(
-        color: Colors.white,
+        color: const Color(0xFF141414),
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
@@ -180,7 +192,7 @@ class _MainNavigationState extends State<MainNavigation> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
-              ? const Color(0xFF10b981).withValues(alpha: 0.05)
+              ? const Color(0xFF1DB954).withValues(alpha: 0.05)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -189,7 +201,7 @@ class _MainNavigationState extends State<MainNavigation> {
           children: [
             Icon(icon,
                 color: isActive
-                    ? const Color(0xFF10b981)
+                    ? const Color(0xFF1DB954)
                     : const Color(0xFF9ca3af),
                 size: 22),
             const SizedBox(height: 4),

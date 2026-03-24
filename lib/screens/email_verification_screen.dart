@@ -52,7 +52,16 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Future<void> _checkEmailVerification() async {
     if (!mounted) return;
 
-    final result = await _authService.checkEmailVerification();
+    final result = await _authService.checkEmailVerification().timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        print('Email verification check timed out');
+        return {'verified': false, 'message': 'Check timed out'};
+      },
+    ).catchError((error) {
+      print('Error checking email verification: $error');
+      return {'verified': false, 'message': 'Error checking verification'};
+    });
 
     if (!mounted) return;
 

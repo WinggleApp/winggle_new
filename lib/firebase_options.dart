@@ -41,48 +41,49 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyApgqjZzDA2h8rwEA70k4VOQF67wcFWMlA',
-    appId: '1:126611795344:web:5c96b5a91b114c63b09715',
-    messagingSenderId: '126611795344',
-    projectId: 'winggle-40155',
-    authDomain: 'winggle-40155.firebaseapp.com',
-    storageBucket: 'winggle-40155.firebasestorage.app',
-    measurementId: 'G-B6X0063P5P',
+    apiKey: 'AIzaSyD30jqcEXRk-jQE5qylvc5i0o6Ion8w1-I',
+    appId: '1:521484955833:web:ff2632d589aa3156a56b68',
+    messagingSenderId: '521484955833',
+    projectId: 'winggle-ac8d7',
+    authDomain: 'winggle-ac8d7.firebaseapp.com',
+    storageBucket: 'winggle-ac8d7.firebasestorage.app',
+    measurementId: 'G-58304C66NJ',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBBmQnEgTzzAtDGZkCI855lE7TZoGcdtL0',
-    appId: '1:126611795344:android:1ee292235fe1ee96b09715',
-    messagingSenderId: '126611795344',
-    projectId: 'winggle-40155',
-    storageBucket: 'winggle-40155.firebasestorage.app',
+    apiKey: 'AIzaSyD_mIlXbSxxrKGealQIIt0skSVVAYQpQ6o',
+    appId: '1:521484955833:android:7859fe4680a91e40a56b68',
+    messagingSenderId: '521484955833',
+    projectId: 'winggle-ac8d7',
+    storageBucket: 'winggle-ac8d7.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCTc68zGqT83KRiBh9RUbWzqipFj-_D03k',
-    appId: '1:126611795344:ios:c4ef83b7e839441fb09715',
-    messagingSenderId: '126611795344',
-    projectId: 'winggle-40155',
-    storageBucket: 'winggle-40155.firebasestorage.app',
+    apiKey: 'AIzaSyAryj-6UPWqeKuUd1zPN0iqwflPDEGn0UE',
+    appId: '1:521484955833:ios:b1f8a694dfce9e27a56b68',
+    messagingSenderId: '521484955833',
+    projectId: 'winggle-ac8d7',
+    storageBucket: 'winggle-ac8d7.firebasestorage.app',
     iosBundleId: 'com.example.winggle',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCTc68zGqT83KRiBh9RUbWzqipFj-_D03k',
-    appId: '1:126611795344:ios:c4ef83b7e839441fb09715',
-    messagingSenderId: '126611795344',
-    projectId: 'winggle-40155',
-    storageBucket: 'winggle-40155.firebasestorage.app',
+    apiKey: 'AIzaSyAryj-6UPWqeKuUd1zPN0iqwflPDEGn0UE',
+    appId: '1:521484955833:ios:b1f8a694dfce9e27a56b68',
+    messagingSenderId: '521484955833',
+    projectId: 'winggle-ac8d7',
+    storageBucket: 'winggle-ac8d7.firebasestorage.app',
     iosBundleId: 'com.example.winggle',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyApgqjZzDA2h8rwEA70k4VOQF67wcFWMlA',
-    appId: '1:126611795344:web:a1672bd27ee29c9db09715',
-    messagingSenderId: '126611795344',
-    projectId: 'winggle-40155',
-    authDomain: 'winggle-40155.firebaseapp.com',
-    storageBucket: 'winggle-40155.firebasestorage.app',
-    measurementId: 'G-4C0L3WKY9W',
+    apiKey: 'AIzaSyD30jqcEXRk-jQE5qylvc5i0o6Ion8w1-I',
+    appId: '1:521484955833:web:18785ff70c39af86a56b68',
+    messagingSenderId: '521484955833',
+    projectId: 'winggle-ac8d7',
+    authDomain: 'winggle-ac8d7.firebaseapp.com',
+    storageBucket: 'winggle-ac8d7.firebasestorage.app',
+    measurementId: 'G-XKLQGF61R4',
   );
+
 }

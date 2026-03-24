@@ -7,84 +7,262 @@ class LoopScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFF0A0A0A),
-      child: SafeArea(
-        child: SingleChildScrollView(
+    return Scaffold(
+      backgroundColor: const Color(0xFF0A0A0A),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF0D0D0D),
+        elevation: 0,
+        centerTitle: false,
+        title: const Text(
+          'Loop',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w800,
+            color: Color(0xFF1DB954),
+          ),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: Center(
+              child: Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1DB954),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.search, color: Colors.white, size: 18),
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
+              // Trending Section
+              const Text(
+                'Trending Now',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFFF0F0F0),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildLoopCard(
+                title: 'How to Build Scalable Applications',
+                author: 'Alex Kumar',
+                views: 2400,
+                likes: 342,
+              ),
+              const SizedBox(height: 12),
+
+              // Popular Section
+              const Text(
+                'Popular in Campus',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFFF0F0F0),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildLoopCard(
+                title: 'Internship Tips & Tricks',
+                author: 'Sarah Johnson',
+                views: 1850,
+                likes: 256,
+              ),
+              const SizedBox(height: 12),
+
+              // Fresh Content Section
+              const Text(
+                'Fresh Content',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFFF0F0F0),
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildLoopCard(
+                title: 'Web3 & Blockchain Basics',
+                author: 'Dev Community',
+                views: 950,
+                likes: 178,
+              ),
+              const SizedBox(height: 12),
+              _buildLoopCard(
+                title: 'Design Thinking Workshop',
+                author: 'Creative Minds',
+                views: 1200,
+                likes: 195,
+              ),
+              const SizedBox(height: 12),
+              _buildLoopCard(
+                title: 'Career Development Path',
+                author: 'HR Team',
+                views: 3100,
+                likes: 512,
+              ),
+              const SizedBox(height: 12),
+              _buildLoopCard(
+                title: 'Networking Guide for Students',
+                author: 'Mentorship Circle',
+                views: 2050,
+                likes: 423,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoopCard({
+    required String title,
+    required String author,
+    required int views,
+    required int likes,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF141414),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF1E1E1E)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1DB954).withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Icon and title
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-                decoration: const BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(color: Color(0xFF2A2A2A), width: 1),
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1DB954).withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF1DB954).withValues(alpha: 0.3)),
+                ),
+                child: const Center(
+                  child: Text(
+                    '∞',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Color(0xFF1DB954),
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                child: Row(
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Loop',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Color(0xFF1DB954),
+                    Text(
+                      title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: Color(0xFFF0F0F0),
                       ),
                     ),
-                    const Spacer(),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF161616),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: const Color(0xFF2A2A2A)),
-                      ),
-                      child: const Icon(
-                        Icons.search,
-                        color: Color(0xFF1DB954),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: onProfileTap,
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1DB954),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'B',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'by $author',
+                      style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF888888),
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 40),
-              const Center(
+              GestureDetector(
+                onTap: () {},
+                child: const Icon(Icons.favorite_border, color: Color(0xFF555555), size: 18),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Stats
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1DB954).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Text(
-                  'Loop - Coming Soon',
-                  style: TextStyle(
-                    fontSize: 18,
+                  '👁 $views',
+                  style: const TextStyle(
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF888888),
+                    color: Color(0xFF1DB954),
                   ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1DB954).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  '❤ $likes',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF1DB954),
+                  ),
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF1DB954).withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.share, size: 12, color: Color(0xFF1DB954)),
+                    SizedBox(width: 4),
+                    Text(
+                      'Share',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF1DB954),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
