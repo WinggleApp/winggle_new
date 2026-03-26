@@ -7,10 +7,15 @@ class LoopScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? const Color(0xFF141414) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFE8E8E8);
+    final primaryText = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtitleText = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    final dimText = isDark ? const Color(0xFF555555) : const Color(0xFFAAAAAA);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
         elevation: 0,
         centerTitle: false,
         title: const Text(
@@ -44,13 +49,12 @@ class LoopScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Trending Section
-              const Text(
+              Text(
                 'Trending Now',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFFF0F0F0),
+                  color: primaryText,
                 ),
               ),
               const SizedBox(height: 12),
@@ -59,16 +63,16 @@ class LoopScreen extends StatelessWidget {
                 author: 'Alex Kumar',
                 views: 2400,
                 likes: 342,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, authorColor: subtitleText, heartColor: dimText,
               ),
               const SizedBox(height: 12),
 
-              // Popular Section
-              const Text(
+              Text(
                 'Popular in Campus',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFFF0F0F0),
+                  color: primaryText,
                 ),
               ),
               const SizedBox(height: 12),
@@ -77,16 +81,16 @@ class LoopScreen extends StatelessWidget {
                 author: 'Sarah Johnson',
                 views: 1850,
                 likes: 256,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, authorColor: subtitleText, heartColor: dimText,
               ),
               const SizedBox(height: 12),
 
-              // Fresh Content Section
-              const Text(
+              Text(
                 'Fresh Content',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFFF0F0F0),
+                  color: primaryText,
                 ),
               ),
               const SizedBox(height: 12),
@@ -95,6 +99,7 @@ class LoopScreen extends StatelessWidget {
                 author: 'Dev Community',
                 views: 950,
                 likes: 178,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, authorColor: subtitleText, heartColor: dimText,
               ),
               const SizedBox(height: 12),
               _buildLoopCard(
@@ -102,6 +107,7 @@ class LoopScreen extends StatelessWidget {
                 author: 'Creative Minds',
                 views: 1200,
                 likes: 195,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, authorColor: subtitleText, heartColor: dimText,
               ),
               const SizedBox(height: 12),
               _buildLoopCard(
@@ -109,6 +115,7 @@ class LoopScreen extends StatelessWidget {
                 author: 'HR Team',
                 views: 3100,
                 likes: 512,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, authorColor: subtitleText, heartColor: dimText,
               ),
               const SizedBox(height: 12),
               _buildLoopCard(
@@ -116,6 +123,7 @@ class LoopScreen extends StatelessWidget {
                 author: 'Mentorship Circle',
                 views: 2050,
                 likes: 423,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, authorColor: subtitleText, heartColor: dimText,
               ),
             ],
           ),
@@ -129,13 +137,18 @@ class LoopScreen extends StatelessWidget {
     required String author,
     required int views,
     required int likes,
+    required Color bg,
+    required Color border,
+    required Color titleColor,
+    required Color authorColor,
+    required Color heartColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF141414),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF1E1E1E)),
+        border: Border.all(color: border),
         boxShadow: [
           BoxShadow(
             color: const Color(0xFF1DB954).withValues(alpha: 0.1),
@@ -179,18 +192,18 @@ class LoopScreen extends StatelessWidget {
                       title,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFFF0F0F0),
+                        color: titleColor,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       'by $author',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF888888),
+                        color: authorColor,
                       ),
                     ),
                   ],
@@ -198,7 +211,7 @@ class LoopScreen extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () {},
-                child: const Icon(Icons.favorite_border, color: Color(0xFF555555), size: 18),
+                child: Icon(Icons.favorite_border, color: heartColor, size: 18),
               ),
             ],
           ),

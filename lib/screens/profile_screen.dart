@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../utils/app_colors.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final initials = (user?.displayName ?? 'U').split(' ').map((e) => e.isNotEmpty ? e[0] : '').join().toUpperCase();
+    final user = Supabase.instance.client.auth.currentUser;
+    final initials = ((user?.userMetadata?['display_name'] as String?) ?? 'U').split(' ').map((e) => e.isNotEmpty ? e[0] : '').join().toUpperCase();
+    final c = AppColors.of(context);
     
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: c.scaffold,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: c.appBar,
         elevation: 0,
         centerTitle: false,
         title: const Text(
@@ -111,9 +113,8 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Name
               Text(
-                user?.displayName ?? 'User',
+                (user?.userMetadata?['display_name'] as String?) ?? 'User',
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w800,
@@ -123,11 +124,11 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 4),
 
               // Subtitle
-              const Text(
+              Text(
                 'Computer Science Student',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF888888),
+                  color: c.secondaryText,
                 ),
               ),
               const SizedBox(height: 12),
@@ -186,12 +187,12 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 12),
 
               // Bio
-              const Text(
+              Text(
                 'Looking for collaborations and networking opportunities. Connect with me!',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Color(0xFF888888),
+                  color: c.secondaryText,
                 ),
               ),
               const SizedBox(height: 20),
@@ -199,9 +200,9 @@ class ProfileScreen extends StatelessWidget {
               // Stats
               Row(
                 children: [
-                  _buildStatItem('867', 'Orbit'),
-                  _buildStatItem('253', 'Posts'),
-                  _buildStatItem('104', 'Reviews'),
+                  _buildStatItem('867', 'Orbit', c),
+                  _buildStatItem('253', 'Posts', c),
+                  _buildStatItem('104', 'Reviews', c),
                 ],
               ),
               const SizedBox(height: 20),
@@ -209,9 +210,9 @@ class ProfileScreen extends StatelessWidget {
               // Tabs
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   border: Border(
-                    bottom: BorderSide(color: Color(0xFF1E1E1E), width: 1),
+                    bottom: BorderSide(color: c.border, width: 1),
                   ),
                 ),
                 child: Row(
@@ -229,19 +230,19 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
+                  color: c.card,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E1E1E)),
+                  border: Border.all(color: c.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       'Social Links',
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFF0F0F0),
+                        color: c.primaryText,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -256,12 +257,12 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    const Center(
+                    Center(
                       child: Text(
                         '05 Active social links',
                         style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF555555),
+                          color: c.mutedText,
                         ),
                       ),
                     ),
@@ -304,7 +305,7 @@ class ProfileScreen extends StatelessWidget {
                     child: OutlinedButton(
                       onPressed: () {},
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(color: Color(0xFF2A2A2A)),
+                        side: BorderSide(color: c.subtleBorder),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -334,9 +335,9 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
+                  color: c.card,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF1E1E1E)),
+                  border: Border.all(color: c.border),
                 ),
                 child: Row(
                   children: [
@@ -350,7 +351,7 @@ class ProfileScreen extends StatelessWidget {
                       child: const Icon(Icons.school, color: Color(0xFF1DB954), size: 20),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -359,15 +360,15 @@ class ProfileScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFF0F0F0),
+                              color: c.primaryText,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             '2024-2028',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF555555),
+                              color: c.mutedText,
                             ),
                           ),
                         ],
@@ -381,9 +382,9 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
+                  color: c.card,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF1E1E1E)),
+                  border: Border.all(color: c.border),
                 ),
                 child: Row(
                   children: [
@@ -397,7 +398,7 @@ class ProfileScreen extends StatelessWidget {
                       child: const Icon(Icons.book, color: Color(0xFF1DB954), size: 20),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -406,15 +407,15 @@ class ProfileScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFF0F0F0),
+                              color: c.primaryText,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             'Expected 2028',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF555555),
+                              color: c.mutedText,
                             ),
                           ),
                         ],
@@ -429,9 +430,9 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
+                  color: c.card,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF1E1E1E)),
+                  border: Border.all(color: c.border),
                 ),
                 child: Row(
                   children: [
@@ -445,7 +446,7 @@ class ProfileScreen extends StatelessWidget {
                       child: const Icon(Icons.visibility, color: Color(0xFF1DB954), size: 20),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -454,15 +455,15 @@ class ProfileScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFF0F0F0),
+                              color: c.primaryText,
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             '352 this month',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF555555),
+                              color: c.mutedText,
                             ),
                           ),
                         ],
@@ -477,9 +478,9 @@ class ProfileScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
+                  color: c.card,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF1E1E1E)),
+                  border: Border.all(color: c.border),
                 ),
                 child: Row(
                   children: [
@@ -493,7 +494,7 @@ class ProfileScreen extends StatelessWidget {
                       child: const Icon(Icons.calendar_today, color: Color(0xFF1DB954), size: 20),
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -502,7 +503,7 @@ class ProfileScreen extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              color: Color(0xFFF0F0F0),
+                              color: c.primaryText,
                             ),
                           ),
                           SizedBox(height: 2),
@@ -510,7 +511,7 @@ class ProfileScreen extends StatelessWidget {
                             'Member since',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF555555),
+                              color: c.mutedText,
                             ),
                           ),
                         ],
@@ -522,23 +523,23 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               // Recent Connections
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Recent Connections',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
-                    color: Color(0xFFF0F0F0),
+                    color: c.primaryText,
                   ),
                 ),
               ),
               const SizedBox(height: 12),
-              _buildConnectionItem('S', 'Sarah Johnson', 'Mumbai, Maharashtra'),
+              _buildConnectionItem('S', 'Sarah Johnson', 'Mumbai, Maharashtra', c),
               const SizedBox(height: 12),
-              _buildConnectionItem('R', 'Rahul Verma', 'Delhi, India'),
+              _buildConnectionItem('R', 'Rahul Verma', 'Delhi, India', c),
               const SizedBox(height: 12),
-              _buildConnectionItem('P', 'Priya Singh', 'Bangalore, Karnataka'),
+              _buildConnectionItem('P', 'Priya Singh', 'Bangalore, Karnataka', c),
               const SizedBox(height: 24),
             ],
           ),
@@ -547,14 +548,14 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatItem(String value, String label) {
+  Widget _buildStatItem(String value, String label, AppColors c) {
     return Expanded(
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: const Color(0xFF141414),
+          color: c.card,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFF1E1E1E)),
+          border: Border.all(color: c.border),
         ),
         child: Column(
           children: [
@@ -569,9 +570,9 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: Color(0xFF888888),
+                color: c.secondaryText,
               ),
             ),
           ],
@@ -629,13 +630,13 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildConnectionItem(String initial, String name, String location) {
+  Widget _buildConnectionItem(String initial, String name, String location, AppColors c) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFF141414),
+        color: c.card,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF1E1E1E)),
+        border: Border.all(color: c.border),
       ),
       child: Row(
         children: [
@@ -664,25 +665,25 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFF0F0F0),
+                    color: c.primaryText,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   location,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF888888),
+                    color: c.secondaryText,
                   ),
                 ),
               ],
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.more_vert, color: Color(0xFF555555), size: 18),
+            icon: Icon(Icons.more_vert, color: c.mutedText, size: 18),
             onPressed: () {},
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),

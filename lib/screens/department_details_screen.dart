@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'semester_screen.dart';
+import '../utils/app_colors.dart';
 
 class DepartmentDetailsScreen extends StatelessWidget {
   final String degreeName;
@@ -18,11 +19,10 @@ class DepartmentDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final departments = _getDefaultDepartments();
+    final c = AppColors.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
         elevation: 0,
         centerTitle: false,
         leading: GestureDetector(
@@ -49,9 +49,9 @@ class DepartmentDetailsScreen extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF141414),
+                  color: c.card,
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFF1E1E1E)),
+                  border: Border.all(color: c.border),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,18 +78,18 @@ class DepartmentDetailsScreen extends StatelessWidget {
                             children: [
                               Text(
                                 degreeName,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w800,
-                                  color: Color(0xFFF0F0F0),
+                                  color: c.primaryText,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 'Choose your department',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF888888),
+                                  color: c.secondaryText,
                                 ),
                               ),
                             ],
@@ -102,9 +102,9 @@ class DepartmentDetailsScreen extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _buildStatColumn('🏢', '5', 'Departments'),
-                        _buildStatColumn('📚', '52', 'Total Subjects'),
-                        _buildStatColumn('📖', '640+', 'Resources'),
+                        _buildStatColumn('🏢', '5', 'Departments', c),
+                        _buildStatColumn('📚', '52', 'Total Subjects', c),
+                        _buildStatColumn('📖', '640+', 'Resources', c),
                       ],
                     ),
                   ],
@@ -118,7 +118,7 @@ class DepartmentDetailsScreen extends StatelessWidget {
                   departments.length,
                   (index) => Column(
                     children: [
-                      _buildDepartmentCard(context, departments[index]),
+                      _buildDepartmentCard(context, departments[index], c),
                       if (index < departments.length - 1)
                         const SizedBox(height: 12),
                     ],
@@ -184,7 +184,7 @@ class DepartmentDetailsScreen extends StatelessWidget {
     ];
   }
 
-  Widget _buildStatColumn(String emoji, String value, String label) {
+  Widget _buildStatColumn(String emoji, String value, String label, AppColors c) {
     return Column(
       children: [
         Text(
@@ -194,18 +194,18 @@ class DepartmentDetailsScreen extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: Color(0xFFF0F0F0),
+            color: c.primaryText,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 10,
-            color: Color(0xFF888888),
+            color: c.secondaryText,
           ),
           textAlign: TextAlign.center,
         ),
@@ -213,7 +213,7 @@ class DepartmentDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDepartmentCard(BuildContext context, Map<String, dynamic> dept) {
+  Widget _buildDepartmentCard(BuildContext context, Map<String, dynamic> dept, AppColors c) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -230,9 +230,9 @@ class DepartmentDetailsScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFF141414),
+          color: c.card,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF1E1E1E)),
+          border: Border.all(color: c.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,10 +278,10 @@ class DepartmentDetailsScreen extends StatelessWidget {
                     children: [
                       Text(
                         dept['name'],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w800,
-                          color: Color(0xFFF0F0F0),
+                          color: c.primaryText,
                         ),
                       ),
                       const SizedBox(height: 6),

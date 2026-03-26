@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'subject_screen.dart';
+import '../utils/app_colors.dart';
 
 class SemesterScreen extends StatelessWidget {
   final String departmentName;
@@ -80,17 +81,26 @@ class SemesterScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final semesters = getSemesterData();
 
+    // Group semesters by year
+    final Map<int, List<Map<String, dynamic>>> byYear = {};
+    for (final s in semesters) {
+      final y = s['year'] as int;
+      byYear.putIfAbsent(y, () => []).add(s);
+    }
+    final years = byYear.keys.toList()..sort();
+
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: c.scaffold,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: c.appBar,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
           child: const Icon(
-            Icons.arrow_back,
+            Icons.arrow_back_ios_new,
             color: Color(0xFF1DB954),
-            size: 24,
+            size: 20,
           ),
         ),
         title: Column(
@@ -99,46 +109,73 @@ class SemesterScreen extends StatelessWidget {
           children: [
             Text(
               departmentName,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: Color(0xFF1DB954),
+                color: c.primaryText,
+                letterSpacing: -0.4,
               ),
             ),
-            const SizedBox(height: 2),
-            const Text(
-              'Select Semester',
+            const SizedBox(height: 1),
+            Text(
+              'Select a semester',
               style: TextStyle(
-                fontSize: 12,
-                color: Color(0xFF888888),
-                fontWeight: FontWeight.w400,
+                fontSize: 11,
+                color: c.mutedText,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
         ),
         centerTitle: false,
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-        child: GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
-            childAspectRatio: 0.9,
-          ),
-          itemCount: semesters.length,
-          itemBuilder: (context, index) {
-            final semester = semesters[index];
-            return _buildSemesterCard(
-              context,
-              semester['sem'],
-              semester['label'],
-              semester['year'],
-              semester['subjects'],
-            );
-          },
-        ),
+      body: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        itemCount: years.length,
+        itemBuilder: (context, i) {
+          final year = years[i];
+          final pair = byYear[year]!;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Year header
+                Text(
+                  'YEAR $year',
+                  style: TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w800,
+                    color: c.isDark ? const Color(0xFF444444) : const Color(0xFF999999),
+                    letterSpacing: 1.8,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                // Two cards in a row
+                Row(
+                  children: List.generate(pair.length, (j) {
+                    final s = pair[j];
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: j == 0 ? 0 : 7,
+                          right: j == 0 ? 7 : 0,
+                        ),
+                        child: _buildSemesterCard(
+                          context,
+                          s['sem'] as int,
+                          s['label'] as String,
+                          s['year'] as int,
+                          s['subjects'] as int,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
@@ -150,6 +187,9 @@ class SemesterScreen extends StatelessWidget {
     int year,
     int subjects,
   ) {
+    final c = AppColors.of(context);
+    final numLabel = semesterNum.toString().padLeft(2, '0');
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -167,70 +207,63 @@ class SemesterScreen extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFF0F0F0),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: color.withOpacity(0.15),
-              blurRadius: 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: c.card,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: c.border),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Semester number circle
-            Container(
-              width: 70,
-              height: 70,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Center(
-                child: Text(
-                  '$semesterNum',
-                  style: const TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Green left accent bar
+                Container(
+                  width: 4,
+                  color: const Color(0xFF1DB954),
+                ),
+                // Card content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 12, 14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          numLabel,
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w800,
+                            color: c.semesterNumText,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          label,
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w800,
+                            color: c.primaryText,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$subjects subjects',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: c.mutedText,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-            const SizedBox(height: 14),
-
-            // Semester label and year
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: color,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Year $year',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Color(0xFF888888),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Subject count in green
-            Text(
-              '$subjects Subjects',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w800,
-                color: color,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

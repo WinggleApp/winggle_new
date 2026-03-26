@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import '../main.dart';
 import 'signup_screen.dart';
 import 'forgot_password_screen.dart';
@@ -16,7 +16,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _authService = AuthService();
+  final _authService = SupabaseAuthService();
   
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -99,9 +99,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0A0A0A) : Colors.white;
+    final textColor = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtleColor = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    final dimColor = isDark ? const Color(0xFF555555) : const Color(0xFFAAAAAA);
+    final inputBorder = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFDDDDDD);
+    final inputFill = isDark ? const Color(0xFF161616) : const Color(0xFFF8F8F8);
     return Scaffold(
       body: Container(
-        color: const Color(0xFF0A0A0A),
+        color: bgColor,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -137,20 +144,20 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
                     
                     // Title
-                    const Text(
+                    Text(
                       'Welcome to Winggle',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFF0F0F0),
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Sign in to continue',
                       style: TextStyle(
                         fontSize: 16,
-                        color: Color(0xFF888888),
+                        color: subtleColor,
                       ),
                     ),
                     const SizedBox(height: 40),
@@ -159,27 +166,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
-                      style: const TextStyle(color: Color(0xFFF0F0F0)),
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         labelText: 'Email',
-                        labelStyle: const TextStyle(color: Color(0xFF888888)),
+                        labelStyle: TextStyle(color: subtleColor),
                         hintText: 'Enter your email',
-                        hintStyle: const TextStyle(color: Color(0xFF555555)),
+                        hintStyle: TextStyle(color: dimColor),
                         prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF1DB954)),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                          borderSide: BorderSide(color: inputBorder),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                          borderSide: BorderSide(color: inputBorder),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: const BorderSide(color: Color(0xFF1DB954), width: 2),
                         ),
                         filled: true,
-                        fillColor: const Color(0xFF161616),
+                        fillColor: inputFill,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -188,12 +195,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      style: const TextStyle(color: Color(0xFFF0F0F0)),
+                      style: TextStyle(color: textColor),
                       decoration: InputDecoration(
                         labelText: 'Password',
-                        labelStyle: const TextStyle(color: Color(0xFF888888)),
+                        labelStyle: TextStyle(color: subtleColor),
                         hintText: 'Enter your password',
-                        hintStyle: const TextStyle(color: Color(0xFF555555)),
+                        hintStyle: TextStyle(color: dimColor),
                         prefixIcon: const Icon(Icons.lock_outlined, color: Color(0xFF1DB954)),
                         suffixIcon: IconButton(
                           icon: Icon(
@@ -206,18 +213,18 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                          borderSide: BorderSide(color: inputBorder),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
-                          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                          borderSide: BorderSide(color: inputBorder),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(14),
                           borderSide: const BorderSide(color: Color(0xFF1DB954), width: 2),
                         ),
                         filled: true,
-                        fillColor: const Color(0xFF161616),
+                        fillColor: inputFill,
                       ),
                     ),
                     const SizedBox(height: 12),

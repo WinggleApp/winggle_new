@@ -1,16 +1,14 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'dart:async';
 
-class AuthService {
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+class SupabaseAuthService {
+  final supabase = Supabase.instance.client;
 
   // Get current user
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => supabase.auth.currentUser;
 
   // Auth state changes stream
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<AuthState> get authStateChanges => supabase.auth.onAuthStateChange;
 
   // Sign up with email and password
   Future<Map<String, dynamic>> signUpWithEmail({
@@ -38,62 +36,51 @@ class AuthService {
         };
       }
 
-      // Create user in Firebase Auth
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      // Sign up with Supabase Auth
+      final AuthResponse res = await supabase.auth.signUp(
         email: email,
         password: password,
+        data: {
+          'display_name': name,
+          'phone': phone,
+        },
       ).timeout(const Duration(seconds: 15), onTimeout: () {
-        throw TimeoutException('Firebase Auth timeout');
+        throw TimeoutException('Supabase Auth timeout');
       });
 
-      // Update display name (non-blocking)
-      userCredential.user?.updateDisplayName(name).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          print('Update display name timeout');
-        },
-      ).catchError((e) {
-        print('Error updating display name: $e');
-      });
+      final user = res.user;
+      if (user == null) {
+        return {'success': false, 'message': 'Failed to create user'};
+      }
 
-      // Store user data in Firestore (non-blocking)
-      _firestore.collection('users').doc(userCredential.user?.uid).set({
-        'uid': userCredential.user?.uid,
-        'name': name,
-        'email': email,
-        'phone': phone,
-        'createdAt': FieldValue.serverTimestamp(),
-        'profileComplete': false,
-        'verified': false,
-      }).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () {
-          print('Firestore set timeout');
-        },
-      ).catchError((e) {
-        print('Error storing user data: $e');
-      });
-
-      // Send email verification in background (don't wait for it)
-      userCredential.user?.sendEmailVerification().onError((error, stackTrace) {
-        print('Error sending verification email: $error');
-      });
+      // Store user data in Supabase 'users' table
+      try {
+        await supabase.from('users').insert({
+          'uid': user.id,
+          'name': name,
+          'email': email,
+          'phone': phone,
+          'profile_complete': false,
+        }).timeout(
+          const Duration(seconds: 10),
+        );
+      } catch (dbError) {
+        print('Warning: Could not store user profile: $dbError');
+        // Don't fail signup if database insert fails
+        // User can still sign in, profile creation is secondary
+      }
 
       return {
         'success': true,
         'message': 'Account created successfully! Please verify your email.',
-        'user': userCredential.user
+        'user': user
       };
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       String message = 'An error occurred';
-      if (e.code == 'weak-password') {
-        message = 'The password provided is too weak';
-      } else if (e.code == 'email-already-in-use') {
+      if (e.message.contains('already registered')) {
         message = 'An account already exists for this email';
-      } else if (e.code == 'invalid-email') {
-        message = 'Invalid email address';
-      } else if (e.code == 'operation-not-allowed') {
-        message = 'Email/password accounts are not enabled';
+      } else if (e.message.contains('invalid')) {
+        message = 'Invalid credentials provided';
       }
       return {'success': false, 'message': message};
     } catch (e) {
@@ -112,51 +99,31 @@ class AuthService {
         return {'success': false, 'message': 'Invalid email format'};
       }
 
-      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+      final AuthResponse res = await supabase.auth.signInWithPassword(
         email: email,
         password: password,
       ).timeout(const Duration(seconds: 15), onTimeout: () {
         throw TimeoutException('Sign in timeout');
       });
 
-      // Reload user to get latest email verification status (non-blocking)
-      userCredential.user?.reload().timeout(
-        const Duration(seconds: 8),
-        onTimeout: () {
-          print('User reload timeout');
-        },
-      ).catchError((e) {
-        print('Error reloading user: $e');
-      });
-
-      // Check if email is verified
-      if (!userCredential.user!.emailVerified) {
-        return {
-          'success': false,
-          'message': 'Please verify your email before signing in',
-          'needsVerification': true,
-        };
+      final user = res.user;
+      if (user == null) {
+        return {'success': false, 'message': 'Failed to sign in'};
       }
 
+      // For now, allow login without email verification
+      // (Supabase doesn't enforce email verification by default)
       return {
         'success': true,
         'message': 'Signed in successfully!',
-        'user': userCredential.user
+        'user': user
       };
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       String message = 'An error occurred';
-      if (e.code == 'user-not-found') {
+      if (e.message.contains('Invalid login credentials')) {
+        message = 'Email or password is incorrect';
+      } else if (e.message.contains('User not found')) {
         message = 'Email not registered';
-      } else if (e.code == 'wrong-password') {
-        message = 'Incorrect password';
-      } else if (e.code == 'invalid-email') {
-        message = 'Invalid email address';
-      } else if (e.code == 'user-disabled') {
-        message = 'This account has been disabled';
-      } else if (e.code == 'too-many-requests') {
-        message = 'Too many failed attempts. Please try again later';
-      } else if (e.code == 'operation-not-allowed') {
-        message = 'Email/password accounts are not enabled';
       }
       return {'success': false, 'message': message};
     } catch (e) {
@@ -166,20 +133,18 @@ class AuthService {
 
   // Sign out
   Future<void> signOut() async {
-    await _auth.signOut();
+    await supabase.auth.signOut();
   }
 
   // Send password reset email
   Future<Map<String, dynamic>> resetPassword(String email) async {
     try {
-      await _auth.sendPasswordResetEmail(email: email);
+      await supabase.auth.resetPasswordForEmail(email);
       return {'success': true, 'message': 'Password reset email sent!'};
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       String message = 'An error occurred';
-      if (e.code == 'user-not-found') {
+      if (e.message.contains('not found')) {
         message = 'No account found with this email';
-      } else if (e.code == 'invalid-email') {
-        message = 'Invalid email address';
       }
       return {'success': false, 'message': message};
     } catch (e) {
@@ -190,9 +155,12 @@ class AuthService {
   // Resend verification email
   Future<Map<String, dynamic>> resendVerificationEmail() async {
     try {
-      User? user = _auth.currentUser;
-      if (user != null && !user.emailVerified) {
-        await user.sendEmailVerification();
+      User? user = supabase.auth.currentUser;
+      if (user != null && user.emailConfirmedAt == null) {
+        await supabase.auth.resend(
+          type: OtpType.signup,
+          email: user.email ?? '',
+        );
         return {'success': true, 'message': 'Verification email sent!'};
       }
       return {'success': false, 'message': 'User not found or already verified'};
@@ -204,40 +172,26 @@ class AuthService {
   // Check if email is verified and refresh user
   Future<Map<String, dynamic>> checkEmailVerification() async {
     try {
-      User? user = _auth.currentUser;
+      User? user = supabase.auth.currentUser;
       if (user == null) {
         return {'success': false, 'message': 'No user logged in', 'verified': false};
       }
-      
-      // Reload user to get latest verification status (with timeout)
-      await user.reload().timeout(
-        const Duration(seconds: 8),
-        onTimeout: () {
-          print('User reload timeout');
-        },
-      ).catchError((e) {
-        print('Error reloading user: $e');
-      });
 
-      user = _auth.currentUser;
-      
-      if (user?.emailVerified == true) {
-        // Update Firestore in background (don't wait)
-        _firestore.collection('users').doc(user!.uid).update({
-          'verified': true,
-          'emailVerifiedAt': FieldValue.serverTimestamp(),
-        }).timeout(
-          const Duration(seconds: 5),
-          onTimeout: () {
-            print('Firestore update timeout');
-          },
-        ).catchError((e) {
-          print('Error updating Firestore: $e');
-        });
+      // Refresh user session to get latest data
+      try {
+        await supabase.auth.refreshSession().timeout(
+          const Duration(seconds: 8),
+        );
+      } catch (e) {
+        print('Error refreshing user: $e');
+      }
 
+      user = supabase.auth.currentUser;
+
+      if (user?.emailConfirmedAt != null) {
         return {'success': true, 'message': 'Email verified!', 'verified': true};
       }
-      
+
       return {'success': false, 'message': 'Email not yet verified', 'verified': false};
     } catch (e) {
       return {'success': false, 'message': 'An error occurred: ${e.toString()}', 'verified': false};
@@ -247,11 +201,16 @@ class AuthService {
   // Get user profile data
   Future<Map<String, dynamic>?> getUserProfile() async {
     try {
-      User? user = _auth.currentUser;
+      User? user = supabase.auth.currentUser;
       if (user == null) return null;
-      
-      DocumentSnapshot doc = await _firestore.collection('users').doc(user.uid).get();
-      return doc.data() as Map<String, dynamic>?;
+
+      final response = await supabase
+          .from('users')
+          .select()
+          .eq('uid', user.id)
+          .single();
+
+      return response as Map<String, dynamic>?;
     } catch (e) {
       return null;
     }
@@ -268,30 +227,32 @@ class AuthService {
         };
       }
 
-      User? user = _auth.currentUser;
+      User? user = supabase.auth.currentUser;
       if (user == null) {
         return {'success': false, 'message': 'No user logged in'};
       }
 
       // Check if username is already taken
-      QuerySnapshot snapshot = await _firestore
-          .collection('users')
-          .where('username', isEqualTo: newUsername)
-          .limit(1)
-          .get();
+      final response = await supabase
+          .from('users')
+          .select()
+          .eq('username', newUsername)
+          .limit(1);
 
-      if (snapshot.docs.isNotEmpty && snapshot.docs.first.id != user.uid) {
+      if (response.isNotEmpty && response[0]['uid'] != user.id) {
         return {'success': false, 'message': 'Username already taken'};
       }
 
-      // Update display name in Firebase Auth
-      await user.updateDisplayName(newUsername);
+      // Update user metadata in Supabase Auth
+      await supabase.auth.updateUser(
+        UserAttributes(data: {'display_name': newUsername}),
+      );
 
-      // Update username in Firestore
-      await _firestore.collection('users').doc(user.uid).update({
+      // Update username in database
+      await supabase.from('users').update({
         'username': newUsername,
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+        'updated_at': DateTime.now().toIso8601String(),
+      }).eq('uid', user.id);
 
       return {'success': true, 'message': 'Username updated successfully!'};
     } catch (e) {
@@ -307,18 +268,21 @@ class AuthService {
     String? profileImageUrl,
   }) async {
     try {
-      User? user = _auth.currentUser;
+      User? user = supabase.auth.currentUser;
       if (user == null) {
         return {'success': false, 'message': 'No user logged in'};
       }
 
       Map<String, dynamic> updateData = {
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updated_at': DateTime.now().toIso8601String(),
       };
 
       if (name != null && name.isNotEmpty) {
         updateData['name'] = name;
-        await user.updateDisplayName(name);
+        // Also update in auth metadata
+        await supabase.auth.updateUser(
+          UserAttributes(data: {'display_name': name}),
+        );
       }
 
       if (phone != null) {
@@ -333,10 +297,10 @@ class AuthService {
       }
 
       if (profileImageUrl != null) {
-        updateData['profileImageUrl'] = profileImageUrl;
+        updateData['profile_image_url'] = profileImageUrl;
       }
 
-      await _firestore.collection('users').doc(user.uid).update(updateData);
+      await supabase.from('users').update(updateData).eq('uid', user.id);
       return {'success': true, 'message': 'Profile updated successfully!'};
     } catch (e) {
       return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
@@ -358,12 +322,12 @@ class AuthService {
   bool _isValidPassword(String password) {
     // At least 8 characters, 1 uppercase, 1 lowercase, 1 number, 1 special character
     if (password.length < 8) return false;
-    
+
     final hasUppercase = password.contains(RegExp(r'[A-Z]'));
     final hasLowercase = password.contains(RegExp(r'[a-z]'));
     final hasDigit = password.contains(RegExp(r'[0-9]'));
     final hasSpecialChar = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
-    
+
     return hasUppercase && hasLowercase && hasDigit && hasSpecialChar;
   }
 

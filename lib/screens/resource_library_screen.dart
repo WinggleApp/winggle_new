@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'department_details_screen.dart';
+import '../utils/app_colors.dart';
 
 class ResourceLibraryScreen extends StatefulWidget {
-  const ResourceLibraryScreen({super.key});
+  final VoidCallback? onBackPressed;
+  
+  const ResourceLibraryScreen({super.key, this.onBackPressed});
 
   @override
   State<ResourceLibraryScreen> createState() => _ResourceLibraryScreenState();
@@ -73,14 +76,13 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
         elevation: 0,
         centerTitle: false,
         leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
+          onTap: () => widget.onBackPressed != null ? widget.onBackPressed!() : Navigator.pop(context),
           child: const Icon(Icons.arrow_back, color: Color(0xFF1DB954), size: 24),
         ),
         title: const Text(
@@ -111,37 +113,37 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
               // Search Bar
               TextField(
                 controller: _searchController,
-                style: const TextStyle(color: Color(0xFFF0F0F0), fontSize: 14),
+                style: TextStyle(color: c.primaryText, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Search degrees...',
-                  hintStyle: const TextStyle(color: Color(0xFF555555), fontSize: 14),
+                  hintStyle: TextStyle(color: c.mutedText, fontSize: 14),
                   filled: true,
-                  fillColor: const Color(0xFF141414),
+                  fillColor: c.card,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF1E1E1E)),
+                    borderSide: BorderSide(color: c.border),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Color(0xFF1E1E1E)),
+                    borderSide: BorderSide(color: c.border),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: Color(0xFF1DB954), width: 2),
                   ),
-                  prefixIcon: const Icon(Icons.search, color: Color(0xFF555555), size: 20),
+                  prefixIcon: Icon(Icons.search, color: c.mutedText, size: 20),
                   contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 ),
               ),
               const SizedBox(height: 24),
 
               // Select Your Degree Title
-              const Text(
+              Text(
                 'Select Your Degree',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFFF0F0F0),
+                  color: c.primaryText,
                 ),
               ),
               const SizedBox(height: 16),
@@ -167,6 +169,7 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
 
   Widget _buildTab(String label, int index) {
     final isActive = _selectedTabIndex == index;
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: () => setState(() => _selectedTabIndex = index),
       child: Column(
@@ -177,7 +180,7 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
             style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w700,
-              color: isActive ? const Color(0xFF1DB954) : const Color(0xFF888888),
+              color: isActive ? const Color(0xFF1DB954) : c.secondaryText,
             ),
           ),
           const SizedBox(height: 8),
@@ -194,7 +197,7 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
             Container(
               height: 1,
               width: 100,
-              color: const Color(0xFF1E1E1E),
+              color: c.border,
             ),
         ],
       ),
@@ -202,6 +205,7 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
   }
 
   Widget _buildDegreeCard(Map<String, dynamic> degree) {
+    final c = AppColors.of(context);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -219,9 +223,9 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: const Color(0xFF141414),
+          color: c.card,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF1E1E1E)),
+          border: Border.all(color: c.border),
         ),
         child: Row(
           children: [
@@ -248,18 +252,18 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
                 children: [
                   Text(
                     degree['name'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFFF0F0F0),
+                      color: c.primaryText,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     degree['subtitle'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: Color(0xFF888888),
+                      color: c.secondaryText,
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -276,9 +280,9 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
                       const SizedBox(width: 12),
                       Text(
                         '${degree['resources']}+ resources',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: Color(0xFF555555),
+                          color: c.mutedText,
                         ),
                       ),
                     ],
@@ -288,9 +292,9 @@ class _ResourceLibraryScreenState extends State<ResourceLibraryScreen> {
             ),
 
             // Chevron
-            const Icon(
+            Icon(
               Icons.chevron_right,
-              color: Color(0xFF555555),
+              color: c.mutedText,
               size: 24,
             ),
           ],

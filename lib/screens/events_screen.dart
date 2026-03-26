@@ -1,24 +1,34 @@
 import 'package:flutter/material.dart';
 
 class EventsScreen extends StatelessWidget {
-  const EventsScreen({super.key});
+  final VoidCallback? onBackPressed;
+  
+  const EventsScreen({super.key, this.onBackPressed});
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0A0A0A) : const Color(0xFFF5F5F5);
+    final appBarColor = isDark ? const Color(0xFF0D0D0D) : Colors.white;
+    final cardColor = isDark ? const Color(0xFF141414) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFE8E8E8);
+    final textColor = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtleColor = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: bgColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: appBarColor,
         elevation: 0,
         centerTitle: false,
         leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
+          onTap: () => onBackPressed != null ? onBackPressed!() : Navigator.pop(context),
           child: const Icon(Icons.arrow_back, color: Color(0xFF1DB954), size: 24),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
+          children: [
+            const Text(
               'Events',
               style: TextStyle(
                 fontSize: 24,
@@ -31,7 +41,7 @@ class EventsScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFFFFA500),
+                color: const Color(0xFFFFA500),
               ),
             ),
           ],
@@ -95,8 +105,8 @@ class EventsScreen extends StatelessWidget {
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
+                        children: [
+                          const Text(
                             'Promote Your Event',
                             style: TextStyle(
                               fontSize: 14,
@@ -104,12 +114,12 @@ class EventsScreen extends StatelessWidget {
                               color: Color(0xFFF0F0F0),
                             ),
                           ),
-                          SizedBox(height: 2),
+                          const SizedBox(height: 2),
                           Text(
                             'Reach 10,000+ students across colleges',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF888888),
+                              color: subtleColor,
                             ),
                           ),
                         ],
@@ -143,15 +153,15 @@ class EventsScreen extends StatelessWidget {
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   children: [
-                    _buildCategoryTab('All', true),
+                    _buildCategoryTab('All', true, borderColor, textColor, subtleColor),
                     const SizedBox(width: 12),
-                    _buildCategoryTab('Technical', false),
+                    _buildCategoryTab('Technical', false, borderColor, textColor, subtleColor),
                     const SizedBox(width: 12),
-                    _buildCategoryTab('Cultural', false),
+                    _buildCategoryTab('Cultural', false, borderColor, textColor, subtleColor),
                     const SizedBox(width: 12),
-                    _buildCategoryTab('Business', false),
+                    _buildCategoryTab('Business', false, borderColor, textColor, subtleColor),
                     const SizedBox(width: 12),
-                    _buildCategoryTab('Sports', false),
+                    _buildCategoryTab('Sports', false, borderColor, textColor, subtleColor),
                   ],
                 ),
               ),
@@ -159,15 +169,15 @@ class EventsScreen extends StatelessWidget {
 
               // Featured Section
               Row(
-                children: const [
-                  Icon(Icons.star, color: Color(0xFFFFA500), size: 18),
-                  SizedBox(width: 6),
+                children: [
+                  const Icon(Icons.star, color: Color(0xFFFFA500), size: 18),
+                  const SizedBox(width: 6),
                   Text(
                     'FEATURED & PROMOTED',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFFFFA500),
+                      color: const Color(0xFFFFA500),
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -188,6 +198,10 @@ class EventsScreen extends StatelessWidget {
                 promoted: true,
                 openToAll: true,
                 free: true,
+                cardColor: cardColor,
+                borderColor: borderColor,
+                textColor: textColor,
+                subtleColor: subtleColor,
               ),
               const SizedBox(height: 16),
               _buildEventCard(
@@ -204,6 +218,10 @@ class EventsScreen extends StatelessWidget {
                 promoted: false,
                 openToAll: true,
                 free: false,
+                cardColor: cardColor,
+                borderColor: borderColor,
+                textColor: textColor,
+                subtleColor: subtleColor,
               ),
             ],
           ),
@@ -212,20 +230,20 @@ class EventsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCategoryTab(String label, bool active) {
+  Widget _buildCategoryTab(String label, bool active, Color borderColor, Color textColor, Color subtleColor) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: active ? const Color(0xFFFFA500) : Colors.transparent,
         borderRadius: BorderRadius.circular(50),
-        border: active ? null : Border.all(color: const Color(0xFF2A2A2A)),
+        border: active ? null : Border.all(color: borderColor),
       ),
       child: Text(
         label,
         style: TextStyle(
           fontSize: 12,
           fontWeight: FontWeight.w700,
-          color: active ? Colors.white : const Color(0xFF888888),
+          color: active ? Colors.white : subtleColor,
         ),
       ),
     );
@@ -242,6 +260,10 @@ class EventsScreen extends StatelessWidget {
     required List<String> sponsors,
     required int registered,
     required int spotsLeft,
+    required Color cardColor,
+    required Color borderColor,
+    required Color textColor,
+    required Color subtleColor,
     bool promoted = false,
     bool openToAll = false,
     bool free = false,
@@ -250,9 +272,9 @@ class EventsScreen extends StatelessWidget {
       borderRadius: BorderRadius.circular(16),
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFF141414),
+          color: cardColor,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: const Color(0xFF1E1E1E)),
+          border: Border.all(color: borderColor),
           boxShadow: [
             BoxShadow(
               color: Colors.black26,

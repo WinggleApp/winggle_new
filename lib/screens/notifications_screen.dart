@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -13,13 +13,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final initials = (user?.displayName ?? 'U').split(' ').map((e) => e.isNotEmpty ? e[0] : '').join().toUpperCase();
+    final user = Supabase.instance.client.auth.currentUser;
+    final initials = ((user?.userMetadata?['display_name'] as String?) ?? 'U').split(' ').map((e) => e.isNotEmpty ? e[0] : '').join().toUpperCase();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? const Color(0xFF141414) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFE8E8E8);
+    final primaryText = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtitleText = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    final dimText = isDark ? const Color(0xFF555555) : const Color(0xFFAAAAAA);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
         elevation: 0,
         centerTitle: false,
         leading: GestureDetector(
@@ -39,7 +43,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
             padding: const EdgeInsets.only(right: 16),
             child: GestureDetector(
               onTap: () async {
-                await FirebaseAuth.instance.signOut();
+                await Supabase.instance.client.auth.signOut();
               },
               child: Center(
                 child: Container(
@@ -71,22 +75,21 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title Section
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Notifications',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
-                  color: Color(0xFFF0F0F0),
+                  color: primaryText,
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Stay updated with everything',
                 style: TextStyle(
                   fontSize: 13,
-                  color: Color(0xFF888888),
+                  color: subtitleText,
                 ),
               ),
               const SizedBox(height: 20),
@@ -115,6 +118,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 description: 'New study materials uploaded',
                 time: '10 min ago',
                 badgeCount: 1,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, descColor: subtitleText, timeColor: dimText,
               ),
               const SizedBox(height: 12),
               _buildNotificationItem(
@@ -123,6 +127,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 description: 'Database Systems assignment due tomorrow',
                 time: '1 hour ago',
                 badgeCount: 1,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, descColor: subtitleText, timeColor: dimText,
               ),
               const SizedBox(height: 12),
               _buildNotificationItem(
@@ -131,6 +136,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 description: 'New announcement from administration',
                 time: '3 hours ago',
                 badgeCount: 2,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, descColor: subtitleText, timeColor: dimText,
               ),
               const SizedBox(height: 12),
               _buildNotificationItem(
@@ -139,6 +145,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 description: 'TechFest 2024 starts in 2 days',
                 time: '5 hours ago',
                 badgeCount: 0,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, descColor: subtitleText, timeColor: dimText,
               ),
               const SizedBox(height: 12),
               _buildNotificationItem(
@@ -147,6 +154,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 description: 'Sarah Johnson sent you a connection request',
                 time: '1 day ago',
                 badgeCount: 0,
+                bg: surfaceColor, border: borderColor, titleColor: primaryText, descColor: subtitleText, timeColor: dimText,
               ),
             ],
           ),
@@ -157,14 +165,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   Widget _buildCategoryTab(String label, int count, int index) {
     final isActive = _selectedTabIndex == index;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final inactiveBg = isDark ? const Color(0xFF141414) : Colors.white;
+    final inactiveBorder = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFE8E8E8);
     return GestureDetector(
       onTap: () => setState(() => _selectedTabIndex = index),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: isActive ? const Color(0xFF1DB954) : const Color(0xFF141414),
+          color: isActive ? const Color(0xFF1DB954) : inactiveBg,
           borderRadius: BorderRadius.circular(20),
-          border: isActive ? null : Border.all(color: const Color(0xFF1E1E1E)),
+          border: isActive ? null : Border.all(color: inactiveBorder),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -208,13 +219,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     required String description,
     required String time,
     required int badgeCount,
+    required Color bg,
+    required Color border,
+    required Color titleColor,
+    required Color descColor,
+    required Color timeColor,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF141414),
+        color: bg,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFF1E1E1E)),
+        border: Border.all(color: border),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,18 +258,18 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
-                    color: Color(0xFFF0F0F0),
+                    color: titleColor,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: Color(0xFF888888),
+                    color: descColor,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -261,9 +277,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   time,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 10,
-                    color: Color(0xFF555555),
+                    color: timeColor,
                   ),
                 ),
               ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../services/auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import 'email_verification_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -17,7 +17,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _authService = AuthService();
+  final _authService = SupabaseAuthService();
   
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
@@ -75,7 +75,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           MaterialPageRoute(
             builder: (context) => EmailVerificationScreen(
               email: _emailController.text.trim(),
-              userId: result['user']?.uid,
+              userId: result['user']?.id,
             ),
           ),
         );
@@ -93,9 +93,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0A0A0A) : Colors.white;
+    final textColor = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtleColor = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    final dimColor = isDark ? const Color(0xFF555555) : const Color(0xFFAAAAAA);
+    final inputBorder = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFDDDDDD);
+    final inputFill = isDark ? const Color(0xFF161616) : const Color(0xFFF5F5F5);
+    final inputBackBg = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFF0F0F0);
+    
     return Scaffold(
       body: Container(
-        color: const Color(0xFF0A0A0A),
+        color: bgColor,
         child: SafeArea(
           child: Column(
             children: [
@@ -106,9 +115,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   children: [
                     IconButton(
                       onPressed: () => Navigator.pop(context),
-                      icon: const Icon(Icons.arrow_back, color: Color(0xFFF0F0F0)),
+                      icon: Icon(Icons.arrow_back, color: textColor),
                       style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFF161616),
+                        backgroundColor: inputBackBg,
                       ),
                     ),
                   ],
@@ -148,20 +157,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         const SizedBox(height: 24),
                         
                         // Title
-                        const Text(
+                        Text(
                           'Create Account',
                           style: TextStyle(
                             fontSize: 28,
                             fontWeight: FontWeight.w800,
-                            color: Color(0xFFF0F0F0),
+                            color: textColor,
                           ),
                         ),
                         const SizedBox(height: 8),
-                        const Text(
+                        Text(
                           'Join Winggle today',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Color(0xFF888888),
+                            color: subtleColor,
                           ),
                         ),
                         const SizedBox(height: 32),
@@ -172,6 +181,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: 'Full Name',
                           hint: 'Enter your full name',
                           icon: Icons.person_outline,
+                          textColor: textColor,
+                          subtleColor: subtleColor,
+                          dimColor: dimColor,
+                          inputBorder: inputBorder,
+                          inputFill: inputFill,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return 'Please enter your name';
@@ -190,6 +204,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: 'Email',
                           hint: 'Enter your email',
                           icon: Icons.email_outlined,
+                          textColor: textColor,
+                          subtleColor: subtleColor,
+                          dimColor: dimColor,
+                          inputBorder: inputBorder,
+                          inputFill: inputFill,
                           keyboardType: TextInputType.emailAddress,
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -209,6 +228,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: 'Phone Number',
                           hint: '+91XXXXXXXXXX',
                           icon: Icons.phone_outlined,
+                          textColor: textColor,
+                          subtleColor: subtleColor,
+                          dimColor: dimColor,
+                          inputBorder: inputBorder,
+                          inputFill: inputFill,
                           keyboardType: TextInputType.phone,
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(RegExp(r'[0-9+]')),
@@ -231,6 +255,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: 'Password',
                           hint: 'Create a strong password',
                           icon: Icons.lock_outlined,
+                          textColor: textColor,
+                          subtleColor: subtleColor,
+                          dimColor: dimColor,
+                          inputBorder: inputBorder,
+                          inputFill: inputFill,
                           obscureText: _obscurePassword,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -271,6 +300,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           label: 'Confirm Password',
                           hint: 'Re-enter your password',
                           icon: Icons.lock_outlined,
+                          textColor: textColor,
+                          subtleColor: subtleColor,
+                          dimColor: dimColor,
+                          inputBorder: inputBorder,
+                          inputFill: inputFill,
                           obscureText: _obscureConfirmPassword,
                           suffixIcon: IconButton(
                             icon: Icon(
@@ -400,6 +434,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     required String label,
     required String hint,
     required IconData icon,
+    required Color textColor,
+    required Color subtleColor,
+    required Color dimColor,
+    required Color inputBorder,
+    required Color inputFill,
     String? Function(String?)? validator,
     TextInputType? keyboardType,
     bool obscureText = false,
@@ -411,28 +450,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
       keyboardType: keyboardType,
       obscureText: obscureText,
       inputFormatters: inputFormatters,
-      style: const TextStyle(color: Color(0xFFF0F0F0)),
+      style: TextStyle(color: textColor),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: const TextStyle(color: Color(0xFF888888)),
+        labelStyle: TextStyle(color: subtleColor),
         hintText: hint,
-        hintStyle: const TextStyle(color: Color(0xFF555555)),
+        hintStyle: TextStyle(color: dimColor),
         prefixIcon: Icon(icon, color: const Color(0xFF1DB954)),
         suffixIcon: suffixIcon,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          borderSide: BorderSide(color: inputBorder),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
-          borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+          borderSide: BorderSide(color: inputBorder),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: Color(0xFF1DB954), width: 2),
         ),
         filled: true,
-        fillColor: const Color(0xFF161616),
+        fillColor: inputFill,
       ),
     );
   }

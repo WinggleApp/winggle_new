@@ -5,18 +5,24 @@ class FeedScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final surfaceColor = isDark ? const Color(0xFF141414) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF1E1E1E) : const Color(0xFFE8E8E8);
+    final primaryText = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtitleText = isDark ? const Color(0xFF555555) : const Color(0xFF888888);
+    final inactiveBorder = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFDDDDDD);
+    final inactiveTabBg = isDark ? const Color(0xFF141414) : const Color(0xFFF5F5F5);
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
         elevation: 0,
         centerTitle: false,
-        title: const Text(
+        title: Text(
           'Bookmarks',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w800,
-            color: Color(0xFFF0F0F0),
+            color: primaryText,
           ),
         ),
         actions: [
@@ -39,62 +45,55 @@ class FeedScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Tab Selection
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  _buildTab('All', true),
+                  _buildTab('All', true, inactiveBorder, inactiveTabBg),
                   const SizedBox(width: 12),
-                  _buildTab('Projects', false),
+                  _buildTab('Projects', false, inactiveBorder, inactiveTabBg),
                   const SizedBox(width: 12),
-                  _buildTab('Articles', false),
+                  _buildTab('Articles', false, inactiveBorder, inactiveTabBg),
                 ],
               ),
             ),
-            // Bookmark Items
             Padding(
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
                   _buildBookmarkItem(
-                    icon: '📱',
-                    title: 'Flutter Best Practices',
-                    category: 'Technology',
-                    date: '2 days ago',
+                    icon: '📱', title: 'Flutter Best Practices',
+                    category: 'Technology', date: '2 days ago',
                     tags: const ['Flutter', 'Mobile Dev'],
+                    bg: surfaceColor, border: borderColor, primaryText: primaryText, subtitleText: subtitleText,
                   ),
                   const SizedBox(height: 12),
                   _buildBookmarkItem(
-                    icon: '🎨',
-                    title: 'UI/UX Design System',
-                    category: 'Design',
-                    date: '1 week ago',
+                    icon: '🎨', title: 'UI/UX Design System',
+                    category: 'Design', date: '1 week ago',
                     tags: const ['Design', 'UI Kit'],
+                    bg: surfaceColor, border: borderColor, primaryText: primaryText, subtitleText: subtitleText,
                   ),
                   const SizedBox(height: 12),
                   _buildBookmarkItem(
-                    icon: '💼',
-                    title: 'Internship Opportunities',
-                    category: 'Career',
-                    date: '3 days ago',
+                    icon: '💼', title: 'Internship Opportunities',
+                    category: 'Career', date: '3 days ago',
                     tags: const ['Internship', 'Job'],
+                    bg: surfaceColor, border: borderColor, primaryText: primaryText, subtitleText: subtitleText,
                   ),
                   const SizedBox(height: 12),
                   _buildBookmarkItem(
-                    icon: '🚀',
-                    title: 'Startup Ideas 2026',
-                    category: 'Business',
-                    date: '1 week ago',
+                    icon: '🚀', title: 'Startup Ideas 2026',
+                    category: 'Business', date: '1 week ago',
                     tags: const ['Startup', 'Innovation'],
+                    bg: surfaceColor, border: borderColor, primaryText: primaryText, subtitleText: subtitleText,
                   ),
                   const SizedBox(height: 12),
                   _buildBookmarkItem(
-                    icon: '📚',
-                    title: 'Learning Resources Hub',
-                    category: 'Education',
-                    date: '2 weeks ago',
+                    icon: '📚', title: 'Learning Resources Hub',
+                    category: 'Education', date: '2 weeks ago',
                     tags: const ['Learning', 'Resources'],
+                    bg: surfaceColor, border: borderColor, primaryText: primaryText, subtitleText: subtitleText,
                   ),
                 ],
               ),
@@ -105,14 +104,14 @@ class FeedScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTab(String label, bool active) {
+  Widget _buildTab(String label, bool active, Color inactiveBorder, Color inactiveBg) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: active ? const Color(0xFF1DB954).withValues(alpha: 0.15) : const Color(0xFF141414),
+        color: active ? const Color(0xFF1DB954).withValues(alpha: 0.15) : inactiveBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: active ? const Color(0xFF1DB954) : const Color(0xFF2A2A2A),
+          color: active ? const Color(0xFF1DB954) : inactiveBorder,
         ),
       ),
       child: Text(
@@ -132,18 +131,21 @@ class FeedScreen extends StatelessWidget {
     required String category,
     required String date,
     required List<String> tags,
+    required Color bg,
+    required Color border,
+    required Color primaryText,
+    required Color subtitleText,
   }) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: const Color(0xFF141414),
+        color: bg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF1E1E1E)),
+        border: Border.all(color: border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon and Title
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -155,10 +157,10 @@ class FeedScreen extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
-                        color: Color(0xFFF0F0F0),
+                        color: primaryText,
                       ),
                     ),
                     const SizedBox(height: 4),
@@ -175,9 +177,9 @@ class FeedScreen extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           '• $date',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 11,
-                            color: Color(0xFF555555),
+                            color: subtitleText,
                           ),
                         ),
                       ],
@@ -192,7 +194,6 @@ class FeedScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 12),
-          // Tags
           Wrap(
             spacing: 6,
             children: tags

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../services/supabase_auth_service.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -11,7 +11,7 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _authService = AuthService();
+  final _authService = SupabaseAuthService();
 
   bool _isLoading = false;
   bool _emailSent = false;
@@ -57,9 +57,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0A0A0A) : Colors.white;
+    final textColor = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtleColor = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    final dimColor = isDark ? const Color(0xFF555555) : const Color(0xFFAAAAAA);
+    final inputBorder = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFDDDDDD);
+    final inputFill = isDark ? const Color(0xFF161616) : const Color(0xFFF5F5F5);
+    
     return Scaffold(
       body: Container(
-        color: const Color(0xFF0A0A0A),
+        color: bgColor,
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(
@@ -73,7 +81,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Color(0xFFF0F0F0)),
+                        icon: Icon(Icons.arrow_back, color: textColor),
                         onPressed: () => Navigator.pop(context),
                       ),
                     ),
@@ -105,20 +113,20 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     const SizedBox(height: 24),
 
                     // Title
-                    const Text(
+                    Text(
                       'Reset Password',
                       style: TextStyle(
                         fontSize: 28,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFFF0F0F0),
+                        color: textColor,
                       ),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Enter your email to receive password reset link',
                       style: TextStyle(
                         fontSize: 14,
-                        color: Color(0xFF888888),
+                        color: subtleColor,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -161,27 +169,27 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       TextField(
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
-                        style: const TextStyle(color: Color(0xFFF0F0F0)),
+                        style: TextStyle(color: textColor),
                         decoration: InputDecoration(
                           labelText: 'Email',
-                          labelStyle: const TextStyle(color: Color(0xFF888888)),
+                          labelStyle: TextStyle(color: subtleColor),
                           hintText: 'Enter your email',
-                          hintStyle: const TextStyle(color: Color(0xFF555555)),
+                          hintStyle: TextStyle(color: dimColor),
                           prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF1DB954)),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                            borderSide: BorderSide(color: inputBorder),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
-                            borderSide: const BorderSide(color: Color(0xFF2A2A2A)),
+                            borderSide: BorderSide(color: inputBorder),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(14),
                             borderSide: const BorderSide(color: Color(0xFF1DB954), width: 2),
                           ),
                           filled: true,
-                          fillColor: const Color(0xFF161616),
+                          fillColor: inputFill,
                         ),
                       ),
                       const SizedBox(height: 32),

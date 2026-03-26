@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-import '../services/auth_service.dart';
+import '../services/supabase_auth_service.dart';
 import 'login_screen.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class EmailVerificationScreen extends StatefulWidget {
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
-  final _authService = AuthService();
+  final _authService = SupabaseAuthService();
   bool _isLoading = false;
   bool _emailVerified = false;
   int _resendCountdown = 0;
@@ -34,16 +34,18 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   @override
   void dispose() {
-    _timer.cancel();
+    if (_timer.isActive) {
+      _timer.cancel();
+    }
     super.dispose();
   }
 
   void _startAutoCheck() {
-    _timer = Timer.periodic(const Duration(seconds: 3), (_) async {
-      if (_checkAttempts < _maxCheckAttempts) {
+    _timer = Timer.periodic(const Duration(seconds: 2), (_) async {
+      if (_checkAttempts < _maxCheckAttempts && !_emailVerified) {
         _checkAttempts++;
         await _checkEmailVerification();
-      } else {
+      } else if (_checkAttempts >= _maxCheckAttempts) {
         _timer.cancel();
       }
     });
@@ -52,28 +54,26 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Future<void> _checkEmailVerification() async {
     if (!mounted) return;
 
-    final result = await _authService.checkEmailVerification().timeout(
-      const Duration(seconds: 10),
-      onTimeout: () {
-        print('Email verification check timed out');
-        return {'verified': false, 'message': 'Check timed out'};
-      },
-    ).catchError((error) {
-      print('Error checking email verification: $error');
-      return {'verified': false, 'message': 'Error checking verification'};
-    });
+    try {
+      final result = await _authService.checkEmailVerification();
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (result['verified'] == true) {
-      setState(() {
-        _emailVerified = true;
-      });
-      _timer.cancel();
+      if (result['verified'] == true) {
+        setState(() {
+          _emailVerified = true;
+        });
+        _timer.cancel();
 
-      if (mounted) {
-        _showSuccessDialog();
+        if (mounted) {
+          _showSuccessDialog();
+        }
+      } else {
+        // Still waiting for verification
+        print('Waiting for email verification... (Attempt ${_checkAttempts}/$_maxCheckAttempts)');
       }
+    } catch (e) {
+      print('Error checking email verification: $e');
     }
   }
 
@@ -155,15 +155,35 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   Future<void> _handleManualCheck() async {
     setState(() => _isLoading = true);
+    
+    print('Manually checking email verification...');
     await _checkEmailVerification();
+    
     setState(() => _isLoading = false);
+    
+    if (!_emailVerified && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please click the verification link in your email'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final bgColor = isDark ? const Color(0xFF0A0A0A) : Colors.white;
+    final textColor = isDark ? const Color(0xFFF0F0F0) : const Color(0xFF111111);
+    final subtleColor = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
+    final inputBackBg = isDark ? const Color(0xFF161616) : const Color(0xFFF5F5F5);
+    final inputBorder = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFDDDDDD);
+    
     return Scaffold(
       body: Container(
-        color: const Color(0xFF0A0A0A),
+        color: bgColor,
         child: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -188,12 +208,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   ),
                   const SizedBox(height: 32),
                   // Title
-                  const Text(
+                  Text(
                     'Verify Your Email',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
-                      color: Color(0xFFF0F0F0),
+                      color: textColor,
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -202,7 +222,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     'We\'ve sent a verification link to',
                     style: TextStyle(
                       fontSize: 14,
-                      color: const Color(0xFF888888).withAlpha(200),
+                      color: subtleColor.withAlpha(200),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -237,22 +257,22 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Please verify your email',
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
-                                  color: Color(0xFFF0F0F0),
+                                  color: textColor,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 _emailVerified
                                     ? 'Email verified! You can now sign in.'
-                                    : 'Click the link in the email to verify your account. We\'re checking automatically every 3 seconds.',
-                                style: const TextStyle(
+                                    : 'Waiting for email verification... ($_checkAttempts/$_maxCheckAttempts checks)',
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: Color(0xFF888888),
+                                  color: subtleColor,
                                 ),
                               ),
                             ],
@@ -338,9 +358,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF161616),
+                      color: inputBackBg,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: const Color(0xFF2A2A2A)),
+                      border: Border.all(color: inputBorder),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,

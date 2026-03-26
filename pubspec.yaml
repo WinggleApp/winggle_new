@@ -12,11 +12,11 @@ dependencies:
   cupertino_icons: ^1.0.2
   font_awesome_flutter: ^10.7.0
   
-  # Firebase
-  firebase_core: ^2.32.0
-  firebase_auth: ^4.17.0
-  cloud_firestore: ^4.17.0
-  firebase_storage: ^11.7.0
+  # Supabase (Backend & Authentication)
+  supabase_flutter: ^2.12.2
+  
+  # Authentication
+  google_sign_in: ^6.2.0
   
   # File Handling
   file_picker: ^8.0.0

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import '../services/notes_service.dart';
+import '../services/supabase_notes_service.dart';
+import '../utils/app_colors.dart';
 
 class SubjectScreen extends StatefulWidget {
   final String semesterName;
@@ -24,11 +25,9 @@ class SubjectScreen extends StatefulWidget {
 }
 
 class _SubjectScreenState extends State<SubjectScreen> {
-  final NotesService _notesService = NotesService();
+  final SupabaseNotesService _notesService = SupabaseNotesService();
   bool _isUploading = false;
   List<Map<String, dynamic>> _uploadedNotes = [];
-  String? _selectedSubjectCode;
-  String? _selectedSubjectName;
 
   @override
   void initState() {
@@ -60,8 +59,9 @@ class _SubjectScreenState extends State<SubjectScreen> {
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
+            final c = AppColors.of(context);
             return AlertDialog(
-              backgroundColor: const Color(0xFF141414),
+              backgroundColor: c.card,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -72,8 +72,8 @@ class _SubjectScreenState extends State<SubjectScreen> {
                   const SizedBox(height: 16),
                   Text(
                     'Uploading: ${platformFile.name}',
-                    style: const TextStyle(
-                      color: Color(0xFFF0F0F0),
+                    style: TextStyle(
+                      color: c.primaryText,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
                     ),
@@ -158,7 +158,6 @@ class _SubjectScreenState extends State<SubjectScreen> {
     );
     setState(() {
       _uploadedNotes = notes;
-      _selectedSubjectCode = subjectCode;
     });
   }
 
@@ -484,11 +483,12 @@ class _SubjectScreenState extends State<SubjectScreen> {
   Widget build(BuildContext context) {
     final subjects = getSubjects();
     final totalCredits = calculateTotalCredits(subjects);
+    final c = AppColors.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0A0A),
+      backgroundColor: c.scaffold,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0D0D0D),
+        backgroundColor: c.appBar,
         elevation: 0,
         leading: GestureDetector(
           onTap: () => Navigator.pop(context),
@@ -513,9 +513,9 @@ class _SubjectScreenState extends State<SubjectScreen> {
             const SizedBox(height: 2),
             Text(
               '${widget.departmentAbbr} - Year ${widget.yearNum}',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: Color(0xFF888888),
+                color: c.secondaryText,
                 fontWeight: FontWeight.w400,
               ),
             ),
@@ -533,15 +533,15 @@ class _SubjectScreenState extends State<SubjectScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE8F5F1),
+                  color: c.isDark ? const Color(0xFF141414) : const Color(0xFFE8F5F1),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    _buildStatsItem('📚', '${subjects.length}', 'Subjects'),
-                    _buildStatsItem('📝', '${_uploadedNotes.length}', 'Uploaded'),
-                    _buildStatsItem('⭐', '$totalCredits+', 'Credits'),
+                    _buildStatsItem('📚', '${subjects.length}', 'Subjects', c),
+                    _buildStatsItem('📝', '${_uploadedNotes.length}', 'Uploaded', c),
+                    _buildStatsItem('⭐', '$totalCredits+', 'Credits', c),
                   ],
                 ),
               ),
@@ -568,25 +568,25 @@ class _SubjectScreenState extends State<SubjectScreen> {
     );
   }
 
-  Widget _buildStatsItem(String emoji, String value, String label) {
+  Widget _buildStatsItem(String emoji, String value, String label, AppColors c) {
     return Column(
       children: [
         Text(emoji, style: const TextStyle(fontSize: 18)),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w800,
-            color: Color(0xFF0A0A0A),
+            color: c.primaryText,
           ),
         ),
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            color: Color(0xFF555555),
+            color: c.mutedText,
           ),
         ),
       ],
