@@ -1,5 +1,8 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import '../services/supabase_auth_service.dart';
 import 'login_screen.dart';
 
@@ -19,62 +22,96 @@ class EmailVerificationScreen extends StatefulWidget {
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   final _authService = SupabaseAuthService();
+  final _otpController = TextEditingController();
   bool _isLoading = false;
   bool _emailVerified = false;
   int _resendCountdown = 0;
-  late Timer _timer;
-  int _checkAttempts = 0;
-  static const int _maxCheckAttempts = 30; // Check for 30 seconds
-
-  @override
-  void initState() {
-    super.initState();
-    _startAutoCheck();
-  }
+  Timer? _countdownTimer;
 
   @override
   void dispose() {
-    if (_timer.isActive) {
-      _timer.cancel();
-    }
+    _otpController.dispose();
+    _countdownTimer?.cancel();
     super.dispose();
   }
 
-  void _startAutoCheck() {
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) async {
-      if (_checkAttempts < _maxCheckAttempts && !_emailVerified) {
-        _checkAttempts++;
-        await _checkEmailVerification();
-      } else if (_checkAttempts >= _maxCheckAttempts) {
-        _timer.cancel();
+  Future<void> _handleVerifyOtp() async {
+    final otp = _otpController.text.trim();
+
+    if (otp.isEmpty) {
+      _showSnackBar('Please enter the OTP sent to your email', isSuccess: false);
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    final result = await _authService.verifyEmailOtp(
+      email: widget.email,
+      otp: otp,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _isLoading = false;
+      _emailVerified = result['success'] == true;
+    });
+
+    _showSnackBar(
+      result['message'] ?? 'Verification failed',
+      isSuccess: result['success'] == true,
+    );
+
+    if (result['success'] == true) {
+      _showSuccessDialog();
+    }
+  }
+
+  Future<void> _handleResendOtp() async {
+    setState(() => _isLoading = true);
+
+    final result = await _authService.resendVerificationEmail();
+
+    if (!mounted) return;
+
+    setState(() => _isLoading = false);
+
+    _showSnackBar(
+      result['message'] ?? 'Failed to resend OTP',
+      isSuccess: result['success'] == true,
+    );
+
+    if (result['success'] == true) {
+      setState(() => _resendCountdown = 60);
+      _startCountdown();
+    }
+  }
+
+  void _startCountdown() {
+    _countdownTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
       }
+
+      if (_resendCountdown <= 1) {
+        setState(() => _resendCountdown = 0);
+        timer.cancel();
+        return;
+      }
+
+      setState(() => _resendCountdown--);
     });
   }
 
-  Future<void> _checkEmailVerification() async {
-    if (!mounted) return;
-
-    try {
-      final result = await _authService.checkEmailVerification();
-
-      if (!mounted) return;
-
-      if (result['verified'] == true) {
-        setState(() {
-          _emailVerified = true;
-        });
-        _timer.cancel();
-
-        if (mounted) {
-          _showSuccessDialog();
-        }
-      } else {
-        // Still waiting for verification
-        print('Waiting for email verification... (Attempt ${_checkAttempts}/$_maxCheckAttempts)');
-      }
-    } catch (e) {
-      print('Error checking email verification: $e');
-    }
+  void _showSnackBar(String message, {required bool isSuccess}) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isSuccess ? const Color(0xFF1DB954) : Colors.red,
+      ),
+    );
   }
 
   void _showSuccessDialog() {
@@ -98,7 +135,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         actions: [
           ElevatedButton(
             onPressed: () {
-              Navigator.pop(context); // Close dialog
+              Navigator.pop(context);
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
@@ -115,63 +152,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     );
   }
 
-  Future<void> _handleResendEmail() async {
-    setState(() => _isLoading = true);
-
-    final result = await _authService.resendVerificationEmail();
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(result['message']),
-        backgroundColor:
-            result['success'] ? const Color(0xFF1DB954) : Colors.red,
-      ),
-    );
-
-    if (result['success']) {
-      setState(() => _resendCountdown = 60);
-      _startCountdown();
-    }
-  }
-
-  void _startCountdown() {
-    Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-
-      setState(() => _resendCountdown--);
-
-      if (_resendCountdown == 0) {
-        timer.cancel();
-      }
-    });
-  }
-
-  Future<void> _handleManualCheck() async {
-    setState(() => _isLoading = true);
-    
-    print('Manually checking email verification...');
-    await _checkEmailVerification();
-    
-    setState(() => _isLoading = false);
-    
-    if (!_emailVerified && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please click the verification link in your email'),
-          backgroundColor: Colors.orange,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -180,7 +160,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     final subtleColor = isDark ? const Color(0xFF888888) : const Color(0xFF666666);
     final inputBackBg = isDark ? const Color(0xFF161616) : const Color(0xFFF5F5F5);
     final inputBorder = isDark ? const Color(0xFF2A2A2A) : const Color(0xFFDDDDDD);
-    
+
     return Scaffold(
       body: Container(
         color: bgColor,
@@ -192,7 +172,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  // Illustration or Icon
                   Container(
                     width: 100,
                     height: 100,
@@ -201,15 +180,14 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       borderRadius: BorderRadius.circular(50),
                     ),
                     child: const Icon(
-                      Icons.mail_outline,
+                      Icons.verified_user_outlined,
                       size: 50,
                       color: Color(0xFF1DB954),
                     ),
                   ),
                   const SizedBox(height: 32),
-                  // Title
                   Text(
-                    'Verify Your Email',
+                    'Verify With OTP',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
@@ -217,9 +195,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Subtitle
                   Text(
-                    'We\'ve sent a verification link to',
+                    'Enter the OTP sent to',
                     style: TextStyle(
                       fontSize: 14,
                       color: subtleColor.withAlpha(200),
@@ -234,10 +211,51 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       color: Color(0xFF1DB954),
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  // Status message
+                  const SizedBox(height: 28),
+                  TextField(
+                    controller: _otpController,
+                    keyboardType: TextInputType.number,
+                    textInputAction: TextInputAction.done,
+                    textAlign: TextAlign.center,
+                    maxLength: 6,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(6),
+                    ],
+                    style: TextStyle(
+                      fontSize: 24,
+                      letterSpacing: 8,
+                      fontWeight: FontWeight.w700,
+                      color: textColor,
+                    ),
+                    decoration: InputDecoration(
+                      counterText: '',
+                      hintText: '000000',
+                      hintStyle: TextStyle(
+                        letterSpacing: 8,
+                        color: subtleColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      filled: true,
+                      fillColor: inputBackBg,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: inputBorder),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(14),
+                        borderSide: BorderSide(color: inputBorder),
+                      ),
+                      focusedBorder: const OutlineInputBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                        borderSide: BorderSide(color: Color(0xFF1DB954), width: 2),
+                      ),
+                    ),
+                    onSubmitted: (_) => _isLoading ? null : _handleVerifyOtp(),
+                  ),
+                  const SizedBox(height: 20),
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: const Color(0xFF1DB954).withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
@@ -247,51 +265,31 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                     ),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.info_outline,
-                          color: Color(0xFF1DB954),
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
+                        const Icon(Icons.info_outline, color: Color(0xFF1DB954), size: 20),
+                        const SizedBox(width: 10),
                         Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Please verify your email',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _emailVerified
-                                    ? 'Email verified! You can now sign in.'
-                                    : 'Waiting for email verification... ($_checkAttempts/$_maxCheckAttempts checks)',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: subtleColor,
-                                ),
-                              ),
-                            ],
+                          child: Text(
+                            _emailVerified
+                                ? 'Email verified. Redirecting to login.'
+                                : 'Did not get OTP? Tap resend to receive a new code.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: subtleColor,
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  // Check button
+                  const SizedBox(height: 28),
                   SizedBox(
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
-                      onPressed: _isLoading ? null : _handleManualCheck,
+                      onPressed: _isLoading ? null : _handleVerifyOtp,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF1DB954),
-                        disabledBackgroundColor:
-                            const Color(0xFF1DB954).withValues(alpha: 0.5),
+                        disabledBackgroundColor: const Color(0xFF1DB954).withValues(alpha: 0.5),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -301,50 +299,35 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               height: 24,
                               width: 24,
                               child: CircularProgressIndicator(
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
-                                ),
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 strokeWidth: 2.5,
                               ),
                             )
-                          : const Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.check_circle_outline, size: 20),
-                                SizedBox(width: 8),
-                                Text(
-                                  'Check Verification Status',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
+                          : const Text(
+                              'Verify OTP',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Resend button
                   SizedBox(
                     width: double.infinity,
                     height: 56,
                     child: OutlinedButton(
-                      onPressed: (_isLoading || _resendCountdown > 0)
-                          ? null
-                          : _handleResendEmail,
+                      onPressed: (_isLoading || _resendCountdown > 0) ? null : _handleResendOtp,
                       style: OutlinedButton.styleFrom(
-                        side: const BorderSide(
-                          color: Color(0xFF1DB954),
-                          width: 2,
-                        ),
+                        side: const BorderSide(color: Color(0xFF1DB954), width: 2),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
                       ),
                       child: Text(
                         _resendCountdown > 0
-                            ? 'Resend Email in ${_resendCountdown}s'
-                            : 'Resend Verification Email',
+                            ? 'Resend OTP in ${_resendCountdown}s'
+                            : 'Resend OTP',
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -353,44 +336,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  // Help section
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: inputBackBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: inputBorder),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Verification tips:',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFFF0F0F0),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        _buildTipItem('Check your spam/junk folder if you don\'t see the email'),
-                        const SizedBox(height: 6),
-                        _buildTipItem('The verification link expires in 24 hours'),
-                        const SizedBox(height: 6),
-                        _buildTipItem('Make sure you\'re using the email you registered with'),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  // Back to login button
+                  const SizedBox(height: 18),
                   TextButton(
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
+                        MaterialPageRoute(builder: (context) => const LoginScreen()),
                       );
                     },
                     child: const Text(
@@ -408,35 +359,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildTipItem(String text) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Container(
-            width: 4,
-            height: 4,
-            decoration: const BoxDecoration(
-              color: Color(0xFF888888),
-              shape: BoxShape.circle,
-            ),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF888888),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

@@ -99,54 +99,33 @@ class _SubjectScreenState extends State<SubjectScreen> {
         // Close loading dialog
         if (mounted) Navigator.pop(context);
 
-        if (uploadResult != null && uploadResult['success']) {
-          // Refresh notes list
+        // Refresh notes list (ignore errors)
+        try {
           await _loadNotesForSubject(subjectCode);
+        } catch (e) {
+          print('Error refreshing notes list: $e');
+        }
 
-          if (mounted) {
-            // Show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: const Color(0xFF1DB954),
-                content: Text(
-                  '✓ ${platformFile.name} uploaded successfully!',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                duration: const Duration(seconds: 2),
+        if (mounted) {
+          // Show success message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: const Color(0xFF1DB954),
+              content: Text(
+                '✓ ${platformFile.name} uploaded successfully!',
+                style: const TextStyle(color: Colors.white),
               ),
-            );
-          }
-        } else {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                backgroundColor: const Color(0xFFFF4757),
-                content: Text(
-                  uploadResult?['message'] ?? 'Failed to upload file',
-                  style: const TextStyle(color: Colors.white),
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          }
+              duration: const Duration(seconds: 2),
+            ),
+          );
         }
 
         setState(() => _isUploading = false);
       }
     } catch (e) {
-      print('Error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: const Color(0xFFFF4757),
-            content: Text(
-              'Error: $e',
-              style: const TextStyle(color: Colors.white),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+      print('Error in file picker: $e');
+      // Error already handled by uploadNote result, don't show duplicate error
+      setState(() => _isUploading = false);
     }
   }
 

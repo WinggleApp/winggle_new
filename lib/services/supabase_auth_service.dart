@@ -72,7 +72,7 @@ class SupabaseAuthService {
 
       return {
         'success': true,
-        'message': 'Account created successfully! Please verify your email.',
+        'message': 'Account created successfully! Enter the OTP sent to your email.',
         'user': user
       };
     } on AuthException catch (e) {
@@ -161,9 +161,46 @@ class SupabaseAuthService {
           type: OtpType.signup,
           email: user.email ?? '',
         );
-        return {'success': true, 'message': 'Verification email sent!'};
+        return {'success': true, 'message': 'Verification OTP sent to your email!'};
       }
       return {'success': false, 'message': 'User not found or already verified'};
+    } catch (e) {
+      return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
+    }
+  }
+
+  // Verify email OTP code
+  Future<Map<String, dynamic>> verifyEmailOtp({
+    required String email,
+    required String otp,
+  }) async {
+    try {
+      if (!_isValidEmail(email)) {
+        return {'success': false, 'message': 'Invalid email format'};
+      }
+
+      final trimmedOtp = otp.trim();
+      if (trimmedOtp.length < 4 || trimmedOtp.length > 8) {
+        return {'success': false, 'message': 'Invalid OTP format'};
+      }
+
+      await supabase.auth.verifyOTP(
+        type: OtpType.signup,
+        email: email,
+        token: trimmedOtp,
+      ).timeout(const Duration(seconds: 15), onTimeout: () {
+        throw TimeoutException('OTP verification timeout');
+      });
+
+      return {'success': true, 'message': 'Email verified successfully!'};
+    } on AuthException catch (e) {
+      String message = 'Invalid or expired OTP. Please try again.';
+      if (e.message.toLowerCase().contains('expired')) {
+        message = 'OTP has expired. Please request a new one.';
+      } else if (e.message.toLowerCase().contains('invalid')) {
+        message = 'Invalid OTP. Please check the code and try again.';
+      }
+      return {'success': false, 'message': message};
     } catch (e) {
       return {'success': false, 'message': 'An error occurred: ${e.toString()}'};
     }
